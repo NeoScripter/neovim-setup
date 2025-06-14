@@ -24,8 +24,9 @@ vim.opt.sidescrolloff = 8
 vim.opt.clipboard = 'unnamedplus' -- Use system clipboard
 vim.opt.confirm = true -- ask for confirmation instead of erroring
 vim.opt.undofile = true -- persistent undo
-vim.opt.backup = true -- automatically save a backup 
-vim.opt.backupdir:remove('.')
+vim.opt.backup = false -- automatically save a backup 
+-- vim.opt.backupdir:remove('.')
+vim.opt.hlsearch = false
 vim.opt.breakindent = true              -- maintain indent when wrapping indented lines
 vim.opt.linebreak = true
 vim.opt.shortmess:append({ I = true })

@@ -125,14 +125,14 @@ vim.keymap.set(
 
 -- vim.keymap.set("n", "<leader>tt", "<cmd>ToggleTerm<CR>", { noremap = true, silent = true })
 vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], { noremap = true, silent = true })
-vim.keymap.set("i", "<C-e>", function()
-	vim.lsp.buf.execute_command({
-		command = "_emmet.expandAbbreviation",
-		arguments = {
-			vim.api.nvim_get_current_line(),
-		},
-	})
-end, { noremap = true, silent = true })
+-- vim.keymap.set("i", "<C-e>", function()
+-- 	vim.lsp.buf.execute_command({
+-- 		command = "_emmet.expandAbbreviation",
+-- 		arguments = {
+-- 			vim.api.nvim_get_current_line(),
+-- 		},
+-- 	})
+-- end, { noremap = true, silent = true })
 
 vim.keymap.set("n", "<leader>+", ":vertical resize +10<CR>", { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>-", ":vertical resize -10<CR>", { noremap = true, silent = true })

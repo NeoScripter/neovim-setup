@@ -17,7 +17,9 @@ return {
 				height = 0.8,
 			},
 		})
-		require("mason-lspconfig").setup({ automatic_installation = true })
+		require("mason-lspconfig").setup({
+			automatic_installation = false,
+		})
 
 		local capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
 
@@ -163,19 +165,10 @@ return {
 			},
 		})
 
-		-- require("lspconfig").sqls.setup({
-		-- 	cmd = { "sqls" },
-		-- 	filetypes = { "sql" },
-		-- 	root_dir = require("lspconfig").util.root_pattern(".git", "config.yml"),
-		-- })
-
 		require("lspconfig").sqls.setup({
 			cmd = { "sqls" },
 			filetypes = { "sql" },
-			root_dir = function()
-				return vim.loop.cwd() -- force attach even without .git or config.yml
-			end,
-			settings = {}, -- can be omitted or customized later
+			root_dir = require("lspconfig").util.root_pattern(".git", "config.yml"),
 		})
 		-- Tailwind CSS
 		require("lspconfig").tailwindcss.setup({ capabilities = capabilities })

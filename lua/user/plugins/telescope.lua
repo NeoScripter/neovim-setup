@@ -40,18 +40,20 @@ return {
 						"rg",
 						"-L",
 						"--color=never",
-						"--sort=path",
+						-- "--sort=path",
 						"--no-heading",
 						"--with-filename",
 						"--line-number",
 						"--column",
 						"--smart-case",
+						"--glob=!docs/**",
+						"--glob=!.docs/**",
 					},
 				})
 			end,
 		},
 		{
-			"<leader>G",
+			"<leader>fG",
 			function()
 				require("telescope").extensions.live_grep_args.live_grep_args({
 					prompt_title = "Grep All Files",
@@ -61,7 +63,7 @@ return {
 						"--no-ignore",
 						"-L",
 						"--color=never",
-						"--sort=path",
+						-- "--sort=path",
 						"--no-heading",
 						"--with-filename",
 						"--line-number",
@@ -152,7 +154,7 @@ return {
 						["<C-Up>"] = actions.cycle_history_prev,
 					},
 				},
-				file_ignore_patterns = { ".git/" },
+				file_ignore_patterns = { ".git/", ".docs/", ".dist/" },
 			},
 			extensions = {
 				live_grep_args = {

@@ -6,6 +6,7 @@ return {
         local neoscroll = require('neoscroll')
         neoscroll.setup({
             -- easing = 'sine',
+            mappings = { '<C-u>', '<C-d>', '<C-b>', '<C-f>' },
         })
         local keymap = {
             ["<C-u>"] = function() neoscroll.ctrl_u({ duration = 100 }) end;
