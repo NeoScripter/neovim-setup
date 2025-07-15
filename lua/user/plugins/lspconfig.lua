@@ -19,12 +19,39 @@ return {
 		})
 		require("mason-lspconfig").setup({
 			automatic_installation = false,
+			automatic_enable = false,
 		})
 
+		-- require("mason-lspconfig").setup_handlers({
+		-- 	function(server_name)
+		-- 		-- Skip servers you configure manually below
+		-- 		local manually_configured = {
+		-- 			intelephense = true,
+		-- 			volar = true,
+		-- 			rust_analyzer = true,
+		-- 			ts_ls = true,
+		-- 			sqls = true,
+		-- 			tailwindcss = true,
+		-- 			cssls = true,
+		-- 			jsonls = true,
+		-- 			lua_ls = true,
+		-- 		}
+
+		-- 		if not manually_configured[server_name] then
+		-- 			require("lspconfig")[server_name].setup({})
+		-- 		end
+		-- 	end,
+		-- })
 		local capabilities = require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
 
 		-- PHP
 		require("lspconfig").intelephense.setup({
+			cmd = { "intelephense", "--stdio" },
+			filetypes = { "php" },
+			-- root_markers = { ".git", "composer.json", ".php" },
+			root_dir = function(fname)
+				return require("lspconfig.util").root_pattern("composer.json", ".git")(fname) or vim.fn.getcwd()
+			end,
 			commands = {
 				IntelephenseIndex = {
 					function()
@@ -40,67 +67,47 @@ return {
 				-- end
 			end,
 			capabilities = capabilities,
+			settings = {
+				intelephense = {
+					environment = {
+						includePaths = { "vendor" }, -- explicitly include vendor
+					},
+					files = {
+						maxSize = 5000000, -- 5MB (default is 1MB, might block big files)
+					},
+					stubs = {
+						-- Base PHP stubs (ESSENTIAL)
+						"Core",
+						"standard",
+						"superglobals",
+						"date",
+						"json",
+						"pcre",
+						"spl",
+
+						-- Laravel-specific stubs
+						"laravel",
+						"eloquent",
+						"blade",
+						"log",
+						"view",
+						"cache",
+						"auth",
+						"queue",
+						"event",
+						"filesystem",
+						"http",
+						"mail",
+						"database",
+						"session",
+						"testing",
+						"support",
+						"carbon",
+						"phpunit",
+					},
+				},
+			},
 		})
-
-		-- require('lspconfig').phpactor.setup({
-		--   capabilities = capabilities,
-		--   on_attach = function(client, bufnr)
-		--     client.server_capabilities.completionProvider = false
-		--     client.server_capabilities.hoverProvider = false
-		--     client.server_capabilities.implementationProvider = false
-		--     client.server_capabilities.referencesProvider = false
-		--     client.server_capabilities.renameProvider = false
-		--     client.server_capabilities.selectionRangeProvider = false
-		--     client.server_capabilities.signatureHelpProvider = false
-		--     client.server_capabilities.typeDefinitionProvider = false
-		--     client.server_capabilities.workspaceSymbolProvider = false
-		--     client.server_capabilities.definitionProvider = false
-		--     client.server_capabilities.documentHighlightProvider = false
-		--     client.server_capabilities.documentSymbolProvider = false
-		--     client.server_capabilities.documentFormattingProvider = false
-		--     client.server_capabilities.documentRangeFormattingProvider = false
-		--   end,
-		--   init_options = {
-		--     ["language_server_phpstan.enabled"] = false,
-		--     ["language_server_psalm.enabled"] = false,
-		--   },
-		--   handlers = {
-		--     ['textDocument/publishDiagnostics'] = function() end
-		--   }
-		-- })
-
-		-- Vue, JavaScript, TypeScript
-		-- require("lspconfig").vue_ls.setup({
-		-- 	capabilities = capabilities,
-		-- 	filetypes = { "vue" },
-		-- 	init_options = {
-		-- 		typescript = {
-		-- 			tsdk = "/path/to/node_modules/typescript/lib", -- Adjust this path
-		-- 		},
-		-- 		vue = {
-		-- 			hybridMode = false, -- Let Volar handle everything
-		-- 		},
-		-- 	},
-		-- })
-		-- require("lspconfig").ts_ls.setup({
-		-- 	init_options = {
-		-- 		plugins = {
-		-- 			{
-		-- 				name = "@vue/typescript-plugin",
-		-- 				location = "/usr/local/lib/node_modules/@vue/typescript-plugin",
-		-- 				languages = { "javascript", "typescript", "vue" },
-		-- 			},
-		-- 		},
-		-- 	},
-		-- 	filetypes = {
-		-- 		"javascript",
-		-- 		"javascriptreact",
-		-- 		"javascript.jsx",
-		-- 		"typescript",
-		-- 		"typescriptreact",
-		-- 		"typescript.tsx",
-		-- 	},
-		-- })
 
 		require("lspconfig").volar.setup({
 			capabilities = capabilities,
@@ -124,6 +131,95 @@ return {
 					},
 				},
 			},
+		})
+
+		require("lspconfig").rust_analyzer.setup({
+			cmd = { "rust-analyzer" },
+			filetypes = { "rust" },
+			capabilities = vim.tbl_deep_extend("force", capabilities, {
+				experimental = {
+					serverStatusNotification = true,
+				},
+			}),
+			settings = {
+				["rust-analyzer"] = {
+					cargo = {
+						allFeatures = true,
+					},
+					check = {
+						command = "clippy",
+					},
+					diagnostics = {
+						enable = true,
+					},
+				},
+			},
+			before_init = function(init_params, config)
+				if config.settings and config.settings["rust-analyzer"] then
+					init_params.initializationOptions = config.settings["rust-analyzer"]
+				end
+			end,
+			on_attach = function(_, bufnr)
+				vim.api.nvim_buf_create_user_command(bufnr, "LspCargoReload", function()
+					local clients = vim.lsp.get_clients({ bufnr = bufnr, name = "rust_analyzer" })
+					for _, client in ipairs(clients) do
+						vim.notify("Reloading Cargo workspace")
+						client.request("rust-analyzer/reloadWorkspace", nil, function(err)
+							if err then
+								error(tostring(err))
+							end
+							vim.notify("Cargo workspace reloaded")
+						end, 0)
+					end
+				end, { desc = "Reload current cargo workspace" })
+			end,
+			root_dir = function(fname)
+				local util = require("lspconfig.util")
+				local user_home = vim.fn.expand("$HOME")
+				local cargo_home = os.getenv("CARGO_HOME") or user_home .. "/.cargo"
+				local rustup_home = os.getenv("RUSTUP_HOME") or user_home .. "/.rustup"
+
+				local function is_library(path)
+					local candidates = {
+						cargo_home .. "/registry/src",
+						cargo_home .. "/git/checkouts",
+						rustup_home .. "/toolchains",
+					}
+					for _, base in ipairs(candidates) do
+						if fname:find(vim.fn.expand(base), 1, true) then
+							return true
+						end
+					end
+					return false
+				end
+
+				if is_library(fname) then
+					local clients = vim.lsp.get_clients({ name = "rust_analyzer" })
+					return #clients > 0 and clients[#clients].config.root_dir or nil
+				end
+
+				local cargo_toml = util.root_pattern("Cargo.toml")(fname)
+				if not cargo_toml then
+					return util.root_pattern("rust-project.json", ".git")(fname)
+				end
+
+				local output = vim.fn.system({
+					"cargo",
+					"metadata",
+					"--no-deps",
+					"--format-version",
+					"1",
+					"--manifest-path",
+					cargo_toml .. "/Cargo.toml",
+				})
+
+				local decoded = vim.fn.json_decode(output)
+				if decoded and decoded.workspace_root then
+					return vim.fn.fnamemodify(decoded.workspace_root, ":p")
+				end
+
+				return cargo_toml
+			end,
 		})
 
 		-- TypeScript (tsserver via ts_ls)
@@ -171,8 +267,125 @@ return {
 			root_dir = require("lspconfig").util.root_pattern(".git", "config.yml"),
 		})
 		-- Tailwind CSS
-		require("lspconfig").tailwindcss.setup({ capabilities = capabilities })
+		require("lspconfig").tailwindcss.setup({
+			capabilities = capabilities,
+			cmd = { "tailwindcss-language-server", "--stdio" },
+			filetypes = {
+				-- html
+				"aspnetcorerazor",
+				"astro",
+				"astro-markdown",
+				"blade",
+				"clojure",
+				"django-html",
+				"htmldjango",
+				"edge",
+				"eelixir",
+				"elixir",
+				"ejs",
+				"erb",
+				"eruby",
+				"gohtml",
+				"gohtmltmpl",
+				"haml",
+				"handlebars",
+				"hbs",
+				"html",
+				"htmlangular",
+				"html-eex",
+				"heex",
+				"jade",
+				"leaf",
+				"liquid",
+				"markdown",
+				"mdx",
+				"mustache",
+				"njk",
+				"nunjucks",
+				"php",
+				"razor",
+				"slim",
+				"twig",
+				-- css
+				"css",
+				"less",
+				"postcss",
+				"sass",
+				"scss",
+				"stylus",
+				"sugarss",
+				-- js
+				"javascript",
+				"javascriptreact",
+				"reason",
+				"rescript",
+				"typescript",
+				"typescriptreact",
+				-- mixed
+				"vue",
+				"svelte",
+				"templ",
+			},
+			settings = {
+				tailwindCSS = {
+					validate = true,
+					lint = {
+						cssConflict = "warning",
+						invalidApply = "error",
+						invalidScreen = "error",
+						invalidVariant = "error",
+						invalidConfigPath = "error",
+						invalidTailwindDirective = "error",
+						recommendedVariantOrder = "warning",
+					},
+					classAttributes = {
+						"class",
+						"className",
+						"class:list",
+						"classList",
+						"ngClass",
+					},
+					includeLanguages = {
+						eelixir = "html-eex",
+						elixir = "phoenix-heex",
+						eruby = "erb",
+						heex = "phoenix-heex",
+						htmlangular = "html",
+						templ = "html",
+					},
+				},
+			},
+			before_init = function(_, config)
+				config.settings = config.settings or {}
+				config.settings.editor = config.settings.editor or {}
+				config.settings.editor.tabSize = config.settings.editor.tabSize or vim.lsp.util.get_effective_tabstop()
+			end,
+			workspace_required = false,
+			root_dir = function(fname)
+				return require("lspconfig.util").root_pattern("package.json")(fname) or vim.fn.getcwd()
+			end,
+		})
 
+		require("lspconfig").cssls.setup({
+			capabilities = capabilities,
+			cmd = { "vscode-css-language-server", "--stdio" },
+			filetypes = { "css", "scss", "less", "sass" },
+			init_options = { provideFormatter = true },
+			root_markers = { "package.json", ".git" },
+			settings = {
+				css = { validate = true },
+				scss = { validate = true },
+				less = { validate = true },
+				sass = { validate = true },
+			},
+			on_attach = function(client, bufnr)
+				local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+				if filetype == "sass" then
+					client.server_capabilities.documentFormattingProvider = false
+					client.server_capabilities.documentRangeFormattingProvider = false
+				end
+			end,
+		})
 		-- JSON
 		require("lspconfig").jsonls.setup({
 			capabilities = capabilities,
@@ -200,69 +413,31 @@ return {
 			},
 		})
 
-		-- require('lspconfig').eslint.setup({
-		--   capabilities = capabilities,
-		--   on_attach = function(client, bufnr)
-		--     vim.api.nvim_create_autocmd("BufWritePre", {
-		--       buffer = bufnr,
-		--       command = "EslintFixAll",
-		--     })
-		--   end,
-		--   handlers = {
-		--     ['textDocument/publishDiagnostics'] = function() end
-		--   }
-		-- })
-
-		-- null-ls
-		-- local null_ls = require('null-ls')
-		-- local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-		-- null_ls.setup({
-		--   temp_dir = '/tmp',
-		--   sources = {
-		--     -- null_ls.builtins.diagnostics.eslint_d.with({
-		--     --   condition = function(utils)
-		--     --     return utils.root_has_file({ '.eslintrc.js' })
-		--     --   end,
-		--     -- }),
-		--     -- null_ls.builtins.diagnostics.phpstan, -- TODO: Only if config file
-		--     null_ls.builtins.diagnostics.trail_space.with({ disabled_filetypes = { 'NvimTree' } }),
-		--     -- null_ls.builtins.formatting.eslint_d.with({
-		--     --   condition = function(utils)
-		--     --     return utils.root_has_file({ '.eslintrc.js', '.eslintrc.json' })
-		--     --   end,
-		--     -- }),
-		--     null_ls.builtins.formatting.pint.with({
-		--       condition = function(utils)
-		--         return utils.root_has_file({ 'vendor/bin/pint' })
-		--       end,
-		--     }),
-		--     -- null_ls.builtins.formatting.prettier.with({
-		--     --   condition = function(utils)
-		--     --     return utils.root_has_file({ '.prettierrc', '.prettierrc.json', '.prettierrc.yml', '.prettierrc.js', 'prettier.config.js' })
-		--     --   end,
-		--     -- }),
-		--   },
-		--   on_attach = function(client, bufnr)
-		--     if client.supports_method("textDocument/formatting") then
-		--       vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-		--       vim.api.nvim_create_autocmd("BufWritePre", {
-		--         group = augroup,
-		--         buffer = bufnr,
-		--         callback = function()
-		--           vim.lsp.buf.format({
-		--             filter = function(client)
-		--               return client.name == "null-ls"
-		--             end,
-		--             bufnr = bufnr,
-		--             timeout_ms = 5000
-		--           })
-		--         end,
-		--       })
-		--     end
-		--   end,
-		-- })
-
-		-- require('mason-null-ls').setup({ automatic_installation = true })
+		require("lspconfig").emmet_language_server.setup({
+			capabilities = capabilities,
+			cmd = { "emmet-language-server", "--stdio" },
+			filetypes = {
+				"astro",
+				"css",
+				"eruby",
+				"html",
+				"html.angular",
+				"html.twig",
+				"htmldjango",
+				"javascriptreact",
+				"less",
+				"pug",
+				"sass",
+				"scss",
+				"svelte",
+				"templ",
+				"typescriptreact",
+				"vue",
+			},
+			root_dir = function(fname)
+				return require("lspconfig.util").root_pattern(".git")(fname) or vim.fn.getcwd()
+			end,
+		})
 
 		-- Keymaps
 		-- vim.keymap.set("n", "<Leader>d", "<cmd>lua vim.diagnostic.open_float()<CR>")
@@ -273,14 +448,6 @@ return {
 		vim.keymap.set("n", "<Leader>lr", ":LspRestart<CR>", { silent = true })
 		vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>")
 		vim.keymap.set("n", "<Leader>rn", "<cmd>lua vim.lsp.buf.rename()<CR>")
-
-		-- Commands
-		-- vim.api.nvim_create_user_command('Format', function() vim.lsp.buf.format({
-		--   filter = function(client)
-		--     return client.name == "null-ls"
-		--   end,
-		--   timeout_ms = 5000
-		-- }) end, {})
 
 		-- Diagnostic configuration
 		vim.diagnostic.config({
@@ -297,11 +464,5 @@ return {
 				},
 			},
 		})
-
-		-- Sign configuration
-		-- vim.fn.sign_define("DiagnosticSignError", { text = "", texthl = "DiagnosticSignError" })
-		-- vim.fn.sign_define("DiagnosticSignWarn", { text = "", texthl = "DiagnosticSignWarn" })
-		-- vim.fn.sign_define("DiagnosticSignInfo", { text = "", texthl = "DiagnosticSignInfo" })
-		-- vim.fn.sign_define("DiagnosticSignHint", { text = "", texthl = "DiagnosticSignHint" })
 	end,
 }

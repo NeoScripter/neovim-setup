@@ -1,0 +1,37 @@
+-- Plugin for Pest tests
+
+return {
+	"nvim-neotest/neotest",
+	dependencies = {
+		...,
+		"V13Axel/neotest-pest",
+	},
+	config = function()
+		require("neotest").setup({
+			adapters = {
+				require("neotest-pest")({
+					ignore_dirs = { "vendor", "node_modules" },
+					root_ignore_files = { "phpunit-only.tests" },
+					test_file_suffixes = { "Test.php", "_test.php", "PestTest.php" },
+
+					sail_enabled = function()
+						return false
+					end,
+					sail_executable = "vendor\\bin\\sail.bat", -- Just in case you use it later
+					sail_project_path = "D:\\Herd\\way_to_self", -- Set this only if needed
+
+					-- ✅ Windows-compatible Pest binary
+					pest_cmd = "vendor\\bin\\pest.bat",
+
+					parallel = 16,
+					compact = false,
+
+					-- ✅ Valid function with return for results path
+					results_path = function()
+						return vim.fn.stdpath("cache") .. "\\neotest\\pest-results.xml"
+					end,
+				}),
+			},
+		})
+	end,
+}

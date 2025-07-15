@@ -62,6 +62,7 @@ return {
 			"bash",
 			"blade",
 			"comment",
+            "stylus",
 			"css",
 			"diff",
 			"dockerfile",

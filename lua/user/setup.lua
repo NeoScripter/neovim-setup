@@ -11,3 +11,9 @@ vim.notify = function(msg, log_level, _opts)
 	-- Uncomment to see other messages
 	-- print("Notification:", msg)
 end
+
+vim.opt.langmap = {
+  "ФИСВУАПРШОЛДЬТЩЗЙКЫЕГМЦЧНЯ;ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  "фисвуапршолдьтщзйкыегмцчня;abcdefghijklmnopqrstuvwxyz"
+}
+

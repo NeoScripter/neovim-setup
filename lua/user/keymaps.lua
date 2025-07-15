@@ -139,3 +139,9 @@ vim.keymap.set("n", "<leader>-", ":vertical resize -10<CR>", { noremap = true, s
 vim.keymap.set("n", "<leader>=", "<C-w>=", { noremap = true, silent = true })
 
 vim.keymap.set("n", "<leader>-", vim.cmd.Ex, { noremap = true, silent = true })
+
+-- vim.keymap.set('n', '<leader>tn', function() require('neotest').run.run() end)
+
+-- vim.keymap.set('n', '<leader>tf', function() require('neotest').run.run(vim.fn.expand('%')) end)
+
+vim.keymap.set('t', '<C-k>', '<Up>', { noremap = true, silent = true })

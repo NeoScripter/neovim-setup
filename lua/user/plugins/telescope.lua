@@ -48,6 +48,8 @@ return {
 						"--smart-case",
 						"--glob=!docs/**",
 						"--glob=!.docs/**",
+						"--glob=!vendor/**",
+						"--glob=!.vendor/**",
 					},
 				})
 			end,
@@ -103,7 +105,7 @@ return {
 				}
 
 				for _, base in ipairs(bases) do
-					local ok, results = pcall(scan.scan_dir, base, { only_dirs = true, depth = 2 })
+					local ok, results = pcall(scan.scan_dir, base, { only_dirs = true, depth = 3 })
 					if ok then
 						vim.list_extend(dirs, results)
 					end
@@ -154,7 +156,7 @@ return {
 						["<C-Up>"] = actions.cycle_history_prev,
 					},
 				},
-				file_ignore_patterns = { ".git/", ".docs/", ".dist/" },
+                file_ignore_patterns = { "node_modules", ".git/", ".docs/", ".dist/", "vendor" },
 			},
 			extensions = {
 				live_grep_args = {
