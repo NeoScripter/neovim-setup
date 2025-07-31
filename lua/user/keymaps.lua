@@ -145,3 +145,7 @@ vim.keymap.set("n", "<leader>-", vim.cmd.Ex, { noremap = true, silent = true })
 -- vim.keymap.set('n', '<leader>tf', function() require('neotest').run.run(vim.fn.expand('%')) end)
 
 vim.keymap.set('t', '<C-k>', '<Up>', { noremap = true, silent = true })
+
+vim.keymap.set('t', '<C-p>', function()
+  vim.api.nvim_feedkeys('move "C:\\Users\\User\\Downloads\\', 't', true)
+end)

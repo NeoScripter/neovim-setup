@@ -70,10 +70,20 @@ return {
 			settings = {
 				intelephense = {
 					environment = {
-						includePaths = { "vendor" }, -- explicitly include vendor
+						includePaths = {
+							"vendor",
+							"vendor/pestphp/pest/src",
+							"vendor/laravel/framework/src",
+						},
 					},
 					files = {
-						maxSize = 5000000, -- 5MB (default is 1MB, might block big files)
+						maxSize = 5000000,
+						associations = { "*.php" },
+						exclude = {
+							"**/.git/**",
+							"**/node_modules/**",
+							"**/bower_components/**",
+						},
 					},
 					stubs = {
 						-- Base PHP stubs (ESSENTIAL)
@@ -104,6 +114,7 @@ return {
 						"support",
 						"carbon",
 						"phpunit",
+						"pest",
 					},
 				},
 			},

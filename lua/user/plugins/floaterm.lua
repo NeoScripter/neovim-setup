@@ -7,6 +7,7 @@ return {
         { '<leader>tt', '<Esc>:FloatermToggle<CR>', mode = 'i' },
         { '<leader>tt', '<C-\\><C-n>:FloatermToggle<CR>', mode = 't' },
         { '<Esc>', '<C-\\><C-n>', mode = 't' },
+        { '<leader>td', '<C-\\><C-n>:bd!<CR>', mode = 't' },
     },
     cmd = { 'FloatermToggle' },
     init = function()
