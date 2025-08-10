@@ -12,8 +12,11 @@ vim.notify = function(msg, log_level, _opts)
 	-- print("Notification:", msg)
 end
 
-vim.opt.langmap = {
-  "ФИСВУАПРШОЛДЬТЩЗЙКЫЕГМЦЧНЯ;ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-  "фисвуапршолдьтщзйкыегмцчня;abcdefghijklmnopqrstuvwxyz"
-}
+vim.opt.shell = "D:/Git/bin/bash.exe"
+vim.opt.shellcmdflag = "-c"
+vim.opt.shellxquote = ""
 
+vim.opt.langmap = {
+	"ФИСВУАПРШОЛДЬТЩЗЙКЫЕГМЦЧНЯ;ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+	"фисвуапршолдьтщзйкыегмцчня;abcdefghijklmnopqrstuvwxyz",
+}
