@@ -1,69 +1,72 @@
 return {
-	enabled = true,
-	"glepnir/dashboard-nvim",
-	opts = {
-		theme = "doom",
-		config = {
-			header = {
-				"",
-				"",
-				"",
-				[[ _   _                          _       _            ]],
-				[[| \ | | ___  ___  ___  ___ _ __(_)_ __ | |_ ___ _ __ ]],
-				[[|  \| |/ _ \/ _ \/ __|/ __| '__| | '_ \| __/ _ \ '__|]],
-				[[| |\  |  __/ (_) \__ \ (__| |  | | |_) | ||  __/ |   ]],
-				[[|_| \_|\___|\___/|___/\___|_|  |_| .__/ \__\___|_|   ]],
-				[[                                 |_|                 ]],
-				"",
-				"",
-				"",
-			},
-			center = {
-				{
-					icon = "  ",
-					desc = "New file",
-					action = function()
-						vim.cmd("enew")
-					end,
-				},
-				{
-					icon = "  ",
-					desc = "Find file               ",
-					key = "Space + f",
-					action = function()
-						require("telescope.builtin").find_files()
-					end,
-				},
-				{
-					icon = "  ",
-					desc = "Recent files            ",
-					key = "Space + h",
-					action = function()
-						require("telescope.builtin").oldfiles()
-					end,
-				},
-				{
-					icon = "  ",
-					desc = "Find word               ",
-					key = "Space + g",
-					action = function()
-						require("telescope.builtin").live_grep()
-					end,
-				},
-			},
-			footer = { "" },
-		},
-		hide = {
-			statusline = false,
-			tabline = false,
-			winbar = false,
-		},
-	},
-	init = function()
-		vim.api.nvim_set_hl(0, "DashboardHeader", { fg = "#6272a4" })
-		vim.api.nvim_set_hl(0, "DashboardDesc", { fg = "#f8f8f2" })
-		vim.api.nvim_set_hl(0, "DashboardIcon", { fg = "#bd93f9" })
-		vim.api.nvim_set_hl(0, "DashboardKey", { fg = "#6272a4" })
-		vim.api.nvim_set_hl(0, "DashboardFooter", { fg = "#6272a4" })
-	end,
+    enabled = true,
+    "glepnir/dashboard-nvim",
+    opts = {
+        theme = "doom",
+        config = {
+            header = {
+                "",
+                "",
+                "",
+                [[ __  __                                                    __                   ]],
+                [[/\ \/\ \                                        __        /\ \__                ]],
+                [[\ \ `\\ \     __    ___     ____    ___   _ __ /\_\  _____\ \ ,_\    __   _ __  ]],
+                [[ \ \ , ` \  /'__`\ / __`\  /',__\  /'___\/\`'__\/\ \/\ '__`\ \ \/  /'__`\/\`'__\]],
+                [[  \ \ \`\ \/\  __//\ \L\ \/\__, `\/\ \__/\ \ \/ \ \ \ \ \L\ \ \ \_/\  __/\ \ \/ ]],
+                [[   \ \_\ \_\ \____\ \____/\/\____/\ \____\\ \_\  \ \_\ \ ,__/\ \__\ \____\\ \_\ ]],
+                [[    \/_/\/_/\/____/\/___/  \/___/  \/____/ \/_/   \/_/\ \ \/  \/__/\/____/ \/_/ ]],
+                [[                                                       \ \_\                    ]],
+                [[                                                        \/_/                    ]],
+                "",
+                "",
+                "",
+            },
+            center = {
+                {
+                    icon = "  ",
+                    desc = "New file",
+                    action = function()
+                        vim.cmd("enew")
+                    end,
+                },
+                {
+                    icon = "  ",
+                    desc = "Find file               ",
+                    key = "Space + f",
+                    action = function()
+                        require("telescope.builtin").find_files()
+                    end,
+                },
+                {
+                    icon = "  ",
+                    desc = "Recent files            ",
+                    key = "Space + h",
+                    action = function()
+                        require("telescope.builtin").oldfiles()
+                    end,
+                },
+                {
+                    icon = "  ",
+                    desc = "Find word               ",
+                    key = "Space + g",
+                    action = function()
+                        require("telescope.builtin").live_grep()
+                    end,
+                },
+            },
+            footer = { "" },
+        },
+        hide = {
+            statusline = false,
+            tabline = false,
+            winbar = false,
+        },
+    },
+    init = function()
+        vim.api.nvim_set_hl(0, "DashboardHeader", { fg = "#6272a4" })
+        vim.api.nvim_set_hl(0, "DashboardDesc", { fg = "#f8f8f2" })
+        vim.api.nvim_set_hl(0, "DashboardIcon", { fg = "#bd93f9" })
+        vim.api.nvim_set_hl(0, "DashboardKey", { fg = "#6272a4" })
+        vim.api.nvim_set_hl(0, "DashboardFooter", { fg = "#6272a4" })
+    end,
 }

@@ -81,14 +81,27 @@ return {
             -- By default, you may press `<c-space>` to show the documentation.
             -- Optionally, set `auto_show = true` to show the documentation after a delay.
             documentation = { auto_show = true, auto_show_delay_ms = 500 },
+            list = {
+                selection = {
+                    preselect = false,
+                    auto_insert = false,
+                },
+            },
         },
 
         sources = {
-            default = { "lsp", "path", "snippets", "lazydev" },
+            default = { "lsp", "path", "snippets", "lazydev", "buffer" },
             providers = {
                 lazydev = {
                     module = "lazydev.integrations.blink",
                     score_offset = 100,
+                },
+                lsp = {
+                    fallbacks = { "buffer" }, -- Add buffer as fallback
+                    score_offset = 50, -- Give LSP higher priority
+                },
+                buffer = {
+                    min_keyword_length = 3, -- Only show buffer completions for 3+ chars
                 },
             },
         },
