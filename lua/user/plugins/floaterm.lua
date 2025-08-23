@@ -13,6 +13,6 @@ return {
 	init = function()
 		vim.g.floaterm_width = 0.8
 		vim.g.floaterm_height = 0.8
-		vim.g.floaterm_shell = "D:/Git/bin/bash.exe"
+        vim.g.floaterm_shell = "/usr/bin/zsh"
 	end,
 }

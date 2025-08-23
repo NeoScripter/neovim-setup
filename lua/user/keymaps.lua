@@ -146,6 +146,4 @@ vim.keymap.set("n", "<leader>-", vim.cmd.Ex, { noremap = true, silent = true })
 
 vim.keymap.set('t', '<C-k>', '<Up>', { noremap = true, silent = true })
 
-vim.keymap.set('t', '<C-p>', function()
-  vim.api.nvim_feedkeys('mv /c/Users/User/Downloads/optimized/* .', 't', true)
-end)
+vim.keymap.set('n', '<C-p>', 'lf-<Esc>i<CR><Esc>', { noremap = true, silent = true })
