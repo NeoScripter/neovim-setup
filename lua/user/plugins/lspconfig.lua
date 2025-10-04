@@ -268,7 +268,6 @@ return {
         --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
         local servers = {
             html = {},
-            ts_ls = {},
             cssls = {},
             emmet_language_server = {},
             intelephense = {},
@@ -277,6 +276,7 @@ return {
             sqls = {},
             stylua = {},
             tailwindcss = {},
+            ts_ls = {},
             vue_ls = {},
 
             -- clangd = {},

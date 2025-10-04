@@ -144,6 +144,10 @@ vim.keymap.set("n", "<leader>-", vim.cmd.Ex, { noremap = true, silent = true })
 
 -- vim.keymap.set('n', '<leader>tf', function() require('neotest').run.run(vim.fn.expand('%')) end)
 
-vim.keymap.set('t', '<C-k>', '<Up>', { noremap = true, silent = true })
+vim.keymap.set("t", "<C-k>", "<Up>", { noremap = true, silent = true })
 
-vim.keymap.set('n', '<C-p>', 'lf-<Esc>i<CR><Esc>', { noremap = true, silent = true })
+vim.keymap.set("n", "<C-p>", "lf-<Esc>i<CR><Esc>", { noremap = true, silent = true })
+
+-- Quickfix navigation
+vim.keymap.set("n", "<M-j>", "<cmd>cnext<CR>", { noremap = true, silent = true })
+vim.keymap.set("n", "<M-k>", "<cmd>cprev<CR>", { noremap = true, silent = true })

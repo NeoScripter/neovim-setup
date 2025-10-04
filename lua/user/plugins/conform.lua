@@ -54,9 +54,11 @@ return {
 		formatters_by_ft = {
 			lua = { "stylua" },
 			php = { "pint" },
+			blade = { "blade-formatter" },
 			javascript = { "prettier" },
 			typescript = { "prettier" },
 			typescriptreact = { "prettier" },
+			javascriptreact = { "prettier" },
 			css = { "prettier" },
 			stylus = { "prettier" },
 			scss = { "prettier" },

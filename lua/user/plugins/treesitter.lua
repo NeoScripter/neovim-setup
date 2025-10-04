@@ -68,6 +68,7 @@ return {
 			"dockerfile",
 			"git_config",
 			"git_rebase",
+            "tsx",
 			"gitattributes",
 			"gitcommit",
 			"gitignore",
