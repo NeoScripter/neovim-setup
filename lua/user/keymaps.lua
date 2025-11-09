@@ -151,3 +151,49 @@ vim.keymap.set("n", "<C-p>", "lf-<Esc>i<CR><Esc>", { noremap = true, silent = tr
 -- Quickfix navigation
 vim.keymap.set("n", "<M-j>", "<cmd>cnext<CR>", { noremap = true, silent = true })
 vim.keymap.set("n", "<M-k>", "<cmd>cprev<CR>", { noremap = true, silent = true })
+
+-- vim.keymap.set("n", "<leader>ipc", function()
+-- 	-- Get file name without extension
+-- 	local filename = vim.fn.expand("%:t:r")
+
+-- 	-- Convert kebab-case or snake_case to PascalCase
+-- 	local function to_pascal_case(name)
+-- 		name = name:gsub("[-_](%w)", function(c)
+-- 			return c:upper()
+-- 		end)
+-- 		return name:sub(1, 1):upper() .. name:sub(2)
+-- 	end
+
+-- 	local component_name = to_pascal_case(filename)
+
+-- 	local scaffold = string.format(
+-- 		[[
+-- import { FC } from 'preact/compat';
+
+-- const %s: FC<{ className?: string }> = ({ className }) => {
+--     return ()
+-- };
+
+-- export default %s;
+-- ]],
+-- 		component_name,
+-- 		component_name
+-- 	)
+
+-- 	vim.api.nvim_put(vim.split(scaffold, "\n"), "l", true, true)
+-- end, { desc = "Insert Preact component scaffold" })
+
+local ipc = require("user.utils.insert-preact-component")
+
+vim.keymap.set(
+    "n",
+    "<leader>ipc",
+    ipc.insert_preact_component,
+    { desc = "Insert Preact component scaffold" }
+)
+
+local testgen = require("user.utils.generate-test")
+
+vim.keymap.set("n", "<leader>clt", function()
+	testgen.generate_test()
+end, { desc = "Generate test from Input/Output block" })

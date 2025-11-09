@@ -79,8 +79,11 @@ return {
 			-- Optionally, set `auto_show = true` to show the documentation after a delay.
 			accept = {
 				auto_brackets = {
-					enabled = false,
+					enabled = true,
 				},
+			},
+			trigger = {
+				show_on_insert_on_trigger_character = true,
 			},
 			documentation = { auto_show = true, auto_show_delay_ms = 200 },
 			list = {
@@ -113,7 +116,7 @@ return {
 					score_offset = 50, -- Give LSP higher priority
 				},
 				buffer = {
-					min_keyword_length = 3, -- Only show buffer completions for 3+ chars
+					min_keyword_length = 1,
 				},
 			},
 		},
