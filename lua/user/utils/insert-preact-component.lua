@@ -17,10 +17,10 @@ function M.insert_preact_component()
 	local component_name = to_pascal_case(filename)
 
 	local scaffold = string.format(
-		[[
+		[[import { NodeProps } from '@/types/nodeProps';
 import { FC } from 'preact/compat';
 
-const %s: FC<{ className?: string }> = ({ className }) => {
+const %s: FC<NodeProps> = ({ className }) => {
     return ()
 };
 
@@ -30,7 +30,7 @@ export default %s;
 		component_name
 	)
 
-	api.nvim_put(vim.split(scaffold, "\n"), "l", true, true)
+	api.nvim_buf_set_lines(0, 0, 0, false, vim.split(scaffold, "\n"))
 end
 
 return M

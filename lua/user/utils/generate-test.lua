@@ -71,8 +71,15 @@ end
 
 function M.generate_test()
 	local api = vim.api
-	local cur_line = api.nvim_win_get_cursor(0)[1]
 	local lines = api.nvim_buf_get_lines(0, 0, -1, false)
+
+	-- EXTENSION: check topmost line for 'test' and add import if missing
+	if not lines[1]:match("test") then
+		api.nvim_buf_set_lines(0, 0, 0, false, { "import test from './test.js';" })
+	end
+
+	local cur_line = api.nvim_win_get_cursor(0)[1]
+	lines = api.nvim_buf_get_lines(0, 0, -1, false)
 
 	-- 1. Find Input:
 	local input_idx
