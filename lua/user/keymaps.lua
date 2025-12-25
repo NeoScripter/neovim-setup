@@ -138,7 +138,9 @@ vim.keymap.set("n", "<leader>+", ":vertical resize +10<CR>", { noremap = true, s
 vim.keymap.set("n", "<leader>-", ":vertical resize -10<CR>", { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>=", "<C-w>=", { noremap = true, silent = true })
 
-vim.keymap.set("n", "<leader>-", vim.cmd.Ex, { noremap = true, silent = true })
+-- vim.keymap.set("n", "<leader>-", vim.cmd.Ex, { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+vim.keymap.set({ "n", "v" }, "<C-b>", "<C-v>")
 
 -- vim.keymap.set('n', '<leader>tn', function() require('neotest').run.run() end)
 
@@ -183,17 +185,66 @@ vim.keymap.set("n", "<M-k>", "<cmd>cprev<CR>", { noremap = true, silent = true }
 -- 	vim.api.nvim_put(vim.split(scaffold, "\n"), "l", true, true)
 -- end, { desc = "Insert Preact component scaffold" })
 
-local ipc = require("user.utils.insert-preact-component")
+-- local ipc = require("user.utils.insert-preact-component")
 
-vim.keymap.set(
-    "n",
-    "<leader>ipc",
-    ipc.insert_preact_component,
-    { desc = "Insert Preact component scaffold" }
-)
-
-local testgen = require("user.utils.generate-test")
+-- vim.keymap.set("n", "<leader>ipc", ipc.insert_preact_component, { desc = "Insert Preact component scaffold" })
 
 vim.keymap.set("n", "<leader>clt", function()
-	testgen.generate_test()
+	require("user.utils.generate-test").generate_test()
 end, { desc = "Generate test from Input/Output block" })
+
+-- vim.keymap.set("n", "<leader>oc", require("user.utils.organize_component").run, {
+-- 	desc = "Organize TSX component",
+-- })
+
+vim.api.nvim_create_user_command(
+	"OrganizeComponent",
+	require("user.utils.organize_component").run,
+	{}
+)
+
+
+vim.keymap.set(
+	"n",
+	"<leader>w",
+	require("user.utils.class_floater_wrapper").toggle,
+	{ desc = "Open class floating editor" }
+)
+
+-- vim.keymap.set("n", "<leader>lr", ":luafile %<CR>")
+vim.api.nvim_create_user_command("LuaRun", "luafile %", {})
+
+vim.api.nvim_create_user_command(
+	"PreactComponent",
+	require("user.utils.insert-preact-component").insert_preact_component,
+	{}
+)
+
+vim.keymap.set(
+	"n",
+	"<leader>tw",
+	require("user.utils.convert-to-rem").convert_to_rem,
+	{ desc = "Convert a number to Tailwind size" }
+)
+
+vim.keymap.set(
+	"n",
+	"<leader>io",
+	require("user.utils.insert-class").insert_class,
+	{ desc = "Insert a class in a component" }
+)
+
+vim.keymap.set(
+	"n",
+	"<leader>ri",
+	require("user.utils.optimize-image").optimize_image,
+	{ desc = "Move image to the component's directory" }
+)
+
+
+vim.api.nvim_create_user_command("Reload", "lua ReloadConfig()", {})
+
+-- vim.keymap.set("n", "<space><space>x", "<cmd>lua ReloadConfig()<CR>")
+-- vim.keymap.set("n", "<space><space>x", "<cmd>source %<CR>")
+vim.keymap.set("n", "<space>x", ":.lua<CR>")
+vim.keymap.set("v", "<space>x", ":lua<CR>")

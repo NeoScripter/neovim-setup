@@ -121,7 +121,7 @@ local function process_image_async(input_path, output_path, width, callback)
 	})
 end
 
-local function process_all_images(source_path, base_name, path_name, sizes, bufnr, line_num)
+local function process_all_images(source_path, base_name, path_name, sizes, suffixes, bufnr, line_num)
 	local total = #sizes
 	local completed = 0
 	local new_paths = {}
@@ -130,7 +130,7 @@ local function process_all_images(source_path, base_name, path_name, sizes, bufn
 	print(string.format("Processing %d images...", total))
 
 	for i, size in ipairs(sizes) do
-		local suffix = get_suffix(i, total)
+		local suffix = suffixes[i]
 		local output_name = base_name .. suffix .. ".webp"
 		local output_path = path_name .. "/" .. output_name
 
@@ -179,9 +179,25 @@ local function process_all_images(source_path, base_name, path_name, sizes, bufn
 							local var_name_base = base_name:gsub("[-_](%a)", function(c)
 								return c:upper()
 							end)
-							local suffix_part = full_path:match("%-(%w+)%.webp$")
-							local var_name = (var_name_base:sub(1, 1):upper() .. var_name_base:sub(2))
-								.. (suffix_part:sub(1, 1):upper() .. suffix_part:sub(2))
+
+							local suffix_part = full_path:match(vim_patt_escape(base_name) .. "%-(.+)%.webp$")
+
+							local var_suffix = ""
+
+							if suffix_part then
+								-- Convert suffix from kebab-case to PascalCase (e.g., "tb-tiny" -> "TbTiny")
+								var_suffix = suffix_part
+									:gsub("^(%a)", function(c)
+										return c:upper()
+									end)
+									:gsub("%-(%a)", function(c)
+										return c:upper()
+									end)
+							else
+								print("⚠ Warning: Could not extract suffix from: " .. full_path)
+							end
+
+							local var_name = (var_name_base:sub(1, 1):upper() .. var_name_base:sub(2)) .. var_suffix
 							local import_line = string.format('import %s from "%s";', var_name, rel_path)
 							table.insert(import_lines, import_line)
 						end
@@ -203,13 +219,6 @@ local function process_all_images(source_path, base_name, path_name, sizes, bufn
 end
 
 function M.optimize_image()
-	local path_name, source_path, base_name = move_image_from_downloads_dir()
-
-	if not path_name or not source_path or not base_name then
-		print("Error: Failed to move image")
-		return
-	end
-
 	-- Capture buffer and line info immediately
 	local bufnr = vim.api.nvim_get_current_buf()
 	local line_num = vim.api.nvim_win_get_cursor(0)[1]
@@ -225,12 +234,46 @@ function M.optimize_image()
 		return
 	end
 
-	local list = split(sizes, " ")
-	table.insert(list, "20")
+	local list_sizes = split(sizes, " ")
 
-	print("\nSizes to process: " .. table.concat(list, ", "))
+	local new_list_sizes = {}
+	for _, size in ipairs(list_sizes) do
+		table.insert(new_list_sizes, size)
+		table.insert(new_list_sizes, "20")
+	end
 
-	process_all_images(source_path, base_name, path_name, list, bufnr, line_num)
+	list_sizes = new_list_sizes
+
+	local suffixes = vim.fn.input("Enter image suffixes: ")
+	if suffixes == "" then
+		print("No suffixes provided")
+		-- Clean up mark
+		vim.api.nvim_buf_del_mark(bufnr, "I")
+		return
+	end
+
+	local list_suffixes = split(suffixes, " ")
+
+	local new_list_suffixes = {}
+	for _, suffix in ipairs(list_suffixes) do
+		local new_suffix = "-" .. suffix
+		table.insert(new_list_suffixes, new_suffix)
+		table.insert(new_list_suffixes, new_suffix .. "-tiny")
+	end
+
+	list_suffixes = new_list_suffixes
+
+	print("\nSuffixes: " .. table.concat(list_suffixes, ", "))
+	print("\nSizes to process: " .. table.concat(list_sizes, ", "))
+
+	local path_name, source_path, base_name = move_image_from_downloads_dir()
+
+	if not path_name or not source_path or not base_name then
+		print("Error: Failed to move image")
+		return
+	end
+
+	process_all_images(source_path, base_name, path_name, list_sizes, list_suffixes, bufnr, line_num)
 end
 
 return M

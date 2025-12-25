@@ -106,6 +106,9 @@ return {
 				lua = { inherit_defaults = true, "lazydev" },
 			},
 			providers = {
+				snippets = {
+					score_offset = 100,
+				},
 				lazydev = {
 					module = "lazydev.integrations.blink",
 					score_offset = 100,
