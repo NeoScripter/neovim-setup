@@ -92,6 +92,7 @@ end
 
 local function process_image_async(input_path, output_path, width, callback)
 	local temp_png = output_path:gsub("%.webp$", ".png")
+	local output_avif = output_path:gsub("%.webp$", ".avif")
 
 	-- Chain of commands to run
 	local commands = {
@@ -101,9 +102,19 @@ local function process_image_async(input_path, output_path, width, callback)
 		string.format("optipng -o7 -strip all '%s'", temp_png),
 		-- Convert to WebP
 		string.format("convert '%s' -quality 75 '%s'", temp_png, output_path),
-		-- Delete intermediate PNG
-		string.format("rm '%s'", temp_png),
 	}
+
+	-- Only create AVIF for images larger than 20px
+	local has_avif = tonumber(width) > 20
+	if has_avif then
+		table.insert(
+			commands,
+			string.format("avifenc --min 30 --max 38 --speed 6 --yuv 420 '%s' '%s'", temp_png, output_avif)
+		)
+	end
+
+	-- Delete intermediate PNG
+	table.insert(commands, string.format("rm '%s'", temp_png))
 
 	local full_command = table.concat(commands, " && ")
 
@@ -111,9 +122,10 @@ local function process_image_async(input_path, output_path, width, callback)
 	vim.fn.jobstart(full_command, {
 		on_exit = function(_, exit_code)
 			if exit_code == 0 then
-				callback(true, output_path)
+				-- Return both webp and avif paths (avif only if created)
+				callback(true, output_path, has_avif and output_avif or nil)
 			else
-				callback(false, "Failed to process image: " .. output_path)
+				callback(false, "Failed to process image: " .. output_path, nil)
 			end
 		end,
 		stdout_buffered = true,
@@ -134,15 +146,18 @@ local function process_all_images(source_path, base_name, path_name, sizes, suff
 		local output_name = base_name .. suffix .. ".webp"
 		local output_path = path_name .. "/" .. output_name
 
-		process_image_async(source_path, output_path, size, function(success, result)
+		process_image_async(source_path, output_path, size, function(success, webp_path, avif_path)
 			completed = completed + 1
 
 			if success then
-				table.insert(new_paths, result)
+				table.insert(new_paths, webp_path)
+				if avif_path then
+					table.insert(new_paths, avif_path)
+				end
 				print(string.format("✓ Completed %d/%d: %s", completed, total, output_name))
 			else
 				has_error = true
-				print("✗ Error: " .. result)
+				print("✗ Error: " .. webp_path)
 			end
 
 			-- All images processed
@@ -180,7 +195,17 @@ local function process_all_images(source_path, base_name, path_name, sizes, suff
 								return c:upper()
 							end)
 
-							local suffix_part = full_path:match(vim_patt_escape(base_name) .. "%-(.+)%.webp$")
+							-- Determine if this is webp or avif
+							local extension = full_path:match("%.([^%.]+)$")
+							local format_prefix = ""
+							if extension == "webp" then
+								format_prefix = "Webp"
+							elseif extension == "avif" then
+								format_prefix = "Avif"
+							end
+
+							local suffix_part =
+								full_path:match(vim_patt_escape(base_name) .. "%-(.+)%." .. extension .. "$")
 
 							local var_suffix = ""
 
@@ -197,7 +222,9 @@ local function process_all_images(source_path, base_name, path_name, sizes, suff
 								print("⚠ Warning: Could not extract suffix from: " .. full_path)
 							end
 
-							local var_name = (var_name_base:sub(1, 1):upper() .. var_name_base:sub(2)) .. var_suffix
+							local var_name = (var_name_base:sub(1, 1):upper() .. var_name_base:sub(2))
+								.. var_suffix
+								.. format_prefix
 							local import_line = string.format('import %s from "%s";', var_name, rel_path)
 							table.insert(import_lines, import_line)
 						end
@@ -208,7 +235,7 @@ local function process_all_images(source_path, base_name, path_name, sizes, suff
 						-- Delete the mark
 						vim.api.nvim_buf_del_mark(bufnr, "I")
 
-						print(string.format("\n✓ All images processed! Created %d variants.", total))
+						print(string.format("\n✓ All images processed! Created %d variants.", #new_paths))
 					end)
 				else
 					print("\n✗ Processing completed with errors.")

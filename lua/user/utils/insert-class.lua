@@ -22,7 +22,7 @@ function M.insert_class()
 		return
 	end
 
-	local value = "class={css." .. name .. "}"
+	local value = "className={css." .. name .. "}"
 
 	local new_line = line:sub(1, i - 1) .. value .. line:sub(j)
 

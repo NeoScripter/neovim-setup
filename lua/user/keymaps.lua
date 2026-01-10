@@ -197,12 +197,8 @@ end, { desc = "Generate test from Input/Output block" })
 -- 	desc = "Organize TSX component",
 -- })
 
-vim.api.nvim_create_user_command(
-	"OrganizeComponent",
-	require("user.utils.organize_component").run,
-	{}
-)
-
+vim.api.nvim_create_user_command("OrganizeComponent", require("user.utils.organize_component").run, {})
+vim.api.nvim_create_user_command("CalcPercentage", require("user.utils.get-percentage").run, {})
 
 vim.keymap.set(
 	"n",
@@ -213,6 +209,7 @@ vim.keymap.set(
 
 -- vim.keymap.set("n", "<leader>lr", ":luafile %<CR>")
 vim.api.nvim_create_user_command("LuaRun", "luafile %", {})
+vim.api.nvim_create_user_command("PythonRun", "!python3 %", {})
 
 vim.api.nvim_create_user_command(
 	"PreactComponent",
@@ -241,10 +238,30 @@ vim.keymap.set(
 	{ desc = "Move image to the component's directory" }
 )
 
-
 vim.api.nvim_create_user_command("Reload", "lua ReloadConfig()", {})
 
 -- vim.keymap.set("n", "<space><space>x", "<cmd>lua ReloadConfig()<CR>")
 -- vim.keymap.set("n", "<space><space>x", "<cmd>source %<CR>")
 vim.keymap.set("n", "<space>x", ":.lua<CR>")
 vim.keymap.set("v", "<space>x", ":lua<CR>")
+
+-- Create a custom command to edit Downloads directory with Oil
+vim.api.nvim_create_user_command("EditDownloads", require("user.utils.edit-downloads").run, {
+	desc = "Edit downloads directory",
+})
+
+-- vim.api.nvim_create_autocmd("CompleteDone", {
+-- 	group = vim.api.nvim_create_augroup("AfterCompletionCallback", { clear = true }),
+-- 	callback = require("user.utils.remove_brackets_after_completion").run,
+-- })
+
+vim.keymap.set("n", "<leader>rf", require("user.utils.run_code").run, { desc = "Run code" })
+
+local python_help = require("user.utils.python_help")
+vim.keymap.set("n", "<leader>ph", python_help.show_help, { desc = "Python help" })
+
+vim.api.nvim_create_user_command("PythonSearch", require("user.utils.python_search").search_method, {
+	desc = "Python search",
+})
+
+vim.api.nvim_create_user_command("PHPSearch", require("user.utils.php_search").search_method, { desc = "PHP search" })
