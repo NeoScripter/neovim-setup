@@ -209,11 +209,16 @@ vim.keymap.set(
 
 -- vim.keymap.set("n", "<leader>lr", ":luafile %<CR>")
 vim.api.nvim_create_user_command("LuaRun", "luafile %", {})
-vim.api.nvim_create_user_command("PythonRun", "!python3 %", {})
+-- vim.api.nvim_create_user_command("PythonRun", "!python3 %", {})
 
 vim.api.nvim_create_user_command(
 	"PreactComponent",
 	require("user.utils.insert-preact-component").insert_preact_component,
+	{}
+)
+vim.api.nvim_create_user_command(
+	"ReactComponent",
+	require("user.utils.insert-react-component").insert_react_component,
 	{}
 )
 
@@ -256,6 +261,7 @@ vim.api.nvim_create_user_command("EditDownloads", require("user.utils.edit-downl
 -- })
 
 vim.keymap.set("n", "<leader>rf", require("user.utils.run_code").run, { desc = "Run code" })
+vim.keymap.set("n", "<leader>hls", require("user.utils.convert-color").convert_color, { desc = "Convert color" })
 
 local python_help = require("user.utils.python_help")
 vim.keymap.set("n", "<leader>ph", python_help.show_help, { desc = "Python help" })
