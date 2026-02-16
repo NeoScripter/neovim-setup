@@ -71,20 +71,6 @@ local function move_image_from_downloads_dir()
 	end
 end
 
-local function get_suffix(index, total)
-	if index == 1 then
-		return "-dk"
-	elseif index == total then
-		return "-tiny"
-	elseif index == 2 then
-		return "-tb"
-	elseif index == 3 then
-		return "-mb"
-	else
-		return "-" .. index
-	end
-end
-
 -- Helper function to escape pattern characters
 local function vim_patt_escape(str)
 	return str:gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1")

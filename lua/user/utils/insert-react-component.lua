@@ -18,7 +18,7 @@ function M.insert_react_component()
 
 	local scaffold = string.format(
 		[[import { FC } from 'react';
-import { NodeProps } from '@/types/ui';
+import { NodeProps } from '@/types/shared';
 
 const %s: FC<NodeProps> = ({ className }) => {
     return ()

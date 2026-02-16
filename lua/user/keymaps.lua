@@ -271,3 +271,5 @@ vim.api.nvim_create_user_command("PythonSearch", require("user.utils.python_sear
 })
 
 vim.api.nvim_create_user_command("PHPSearch", require("user.utils.php_search").search_method, { desc = "PHP search" })
+
+require('user.utils.react-context').setup()
