@@ -102,12 +102,12 @@ vim.keymap.set("s", "<C-c>", "<Esc>", { noremap = true, silent = true })
 vim.keymap.set("n", "Q", "<nop>", { noremap = true, silent = true })
 
 -- Quickfix: go to next entry and center it
-vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz", { noremap = true, silent = true })
+vim.keymap.set("n", "<C-j>", "<cmd>cnext<CR>zz", { noremap = true, silent = true })
 
 vim.keymap.set("n", "<C-l>", vim.diagnostic.open_float, { noremap = true, silent = true })
 
 -- Quickfix: go to previous entry and center it
-vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz", { noremap = true, silent = true })
+vim.keymap.set("n", "<C-k>", "<cmd>cprev<CR>zz", { noremap = true, silent = true })
 
 -- Location list: go to next entry and center it
 vim.keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz", { noremap = true, silent = true })
@@ -151,8 +151,8 @@ vim.keymap.set("t", "<C-k>", "<Up>", { noremap = true, silent = true })
 vim.keymap.set("n", "<C-p>", "lf-<Esc>i<CR><Esc>", { noremap = true, silent = true })
 
 -- Quickfix navigation
-vim.keymap.set("n", "<M-j>", "<cmd>cnext<CR>", { noremap = true, silent = true })
-vim.keymap.set("n", "<M-k>", "<cmd>cprev<CR>", { noremap = true, silent = true })
+-- vim.keymap.set("n", "<M-j>", "<cmd>cnext<CR>", { noremap = true, silent = true })
+-- vim.keymap.set("n", "<M-k>", "<cmd>cprev<CR>", { noremap = true, silent = true })
 
 -- vim.keymap.set("n", "<leader>ipc", function()
 -- 	-- Get file name without extension
@@ -273,3 +273,6 @@ vim.api.nvim_create_user_command("PythonSearch", require("user.utils.python_sear
 vim.api.nvim_create_user_command("PHPSearch", require("user.utils.php_search").search_method, { desc = "PHP search" })
 
 require('user.utils.react-context').setup()
+
+vim.keymap.set('n', '<leader>tn', function() require('neotest').run.run() end)
+vim.keymap.set('n', '<leader>tn', function() require('neotest').run.run() end)

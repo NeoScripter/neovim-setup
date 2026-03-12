@@ -38,12 +38,17 @@ local function move_image_from_downloads_dir()
 	local fullpath = vim.fn.getcwd() .. path
 	local image_name = fullpath:match("([^/]+)$")
 	local path_name = fullpath:match("(.+)/[^/]+$")
-	local down_dir = "/home/ilya/Downloads/"
+
+	-- Extract base name without extension from the destination path
 	local base_name = image_name:match("(.+)%..+$") or image_name
 
-	-- Find matching file in Downloads
-	local extensions = { "png", "jpg", "jpeg", "webp" }
+	local down_dir = "/home/ilya/Downloads/"
+
+	-- Find matching file in Downloads (search for any file with this base name)
+	local extensions = { "png", "jpg", "jpeg", "webp", "gif", "bmp" }
 	local found_file = nil
+
+	-- First, try exact match with base_name
 	for _, ext in ipairs(extensions) do
 		local test_path = down_dir .. base_name .. "." .. ext
 		if vim.fn.filereadable(test_path) == 1 then
@@ -52,21 +57,35 @@ local function move_image_from_downloads_dir()
 		end
 	end
 
+	-- If not found, try to find any image file in Downloads directory
+	-- that matches the base_name pattern (case-insensitive)
+	if not found_file then
+		local files = vim.fn.glob(down_dir .. "*", false, true)
+		for _, file in ipairs(files) do
+			local filename = file:match("([^/]+)$")
+			local file_base = filename:match("(.+)%..+$") or filename
+			if file_base:lower() == base_name:lower() then
+				found_file = file
+				break
+			end
+		end
+	end
+
 	if found_file then
 		-- Create directory if it doesn't exist
 		vim.fn.mkdir(path_name, "p")
 		-- Move the file
-		local dest_path = path_name .. "/" .. vim.fn.fnamemodify(found_file, ":t")
+		local dest_path = path_name .. "/" .. base_name .. "." .. found_file:match("%.([^%.]+)$")
 		local success = vim.fn.rename(found_file, dest_path)
 		if success == 0 then
 			print("Moved: " .. found_file .. " -> " .. dest_path)
 			return path_name, dest_path, base_name
 		else
-			print("Error moving file")
+			print("Error moving file: " .. vim.fn.string(success))
 			return nil, nil, nil
 		end
 	else
-		print("No matching image found in Downloads")
+		print("No matching image found in Downloads for: " .. base_name)
 		return nil, nil, nil
 	end
 end
@@ -76,14 +95,24 @@ local function vim_patt_escape(str)
 	return str:gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]", "%%%1")
 end
 
-local function process_image_async(input_path, output_path, width, callback)
+local function process_image_async(input_path, output_path, width, callback, scale_suffix)
+	-- output_path already contains the scale suffix in the filename
+	-- so we don't modify it further
 	local temp_png = output_path:gsub("%.webp$", ".png")
 	local output_avif = output_path:gsub("%.webp$", ".avif")
+
+	-- Calculate actual width based on scale
+	local actual_width = width
+	if scale_suffix == "2x" then
+		actual_width = tostring(tonumber(width) * 2)
+	elseif scale_suffix == "3x" then
+		actual_width = tostring(tonumber(width) * 3)
+	end
 
 	-- Chain of commands to run
 	local commands = {
 		-- Resize to target width and save as PNG
-		string.format("convert '%s' -resize '%sx>' '%s'", input_path, width, temp_png),
+		string.format("convert '%s' -resize '%sx>' '%s'", input_path, actual_width, temp_png),
 		-- Optimize PNG
 		string.format("optipng -o7 -strip all '%s'", temp_png),
 		-- Convert to WebP
@@ -91,7 +120,7 @@ local function process_image_async(input_path, output_path, width, callback)
 	}
 
 	-- Only create AVIF for images larger than 20px
-	local has_avif = tonumber(width) > 20
+	local has_avif = tonumber(actual_width) > 20
 	if has_avif then
 		table.insert(
 			commands,
@@ -120,114 +149,133 @@ local function process_image_async(input_path, output_path, width, callback)
 end
 
 local function process_all_images(source_path, base_name, path_name, sizes, suffixes, bufnr, line_num)
-	local total = #sizes
+	local total = 0
 	local completed = 0
 	local new_paths = {}
 	local has_error = false
+
+	-- Calculate total: tiny images get no scales, regular images get 1x, 2x, 3x
+	for i, suffix in ipairs(suffixes) do
+		if suffix:match("%-tiny$") then
+			total = total + 1 -- Only 1x for tiny images
+		else
+			total = total + 3 -- 1x, 2x, 3x for regular images
+		end
+	end
 
 	print(string.format("Processing %d images...", total))
 
 	for i, size in ipairs(sizes) do
 		local suffix = suffixes[i]
-		local output_name = base_name .. suffix .. ".webp"
-		local output_path = path_name .. "/" .. output_name
+		local is_tiny = suffix:match("%-tiny$")
 
-		process_image_async(source_path, output_path, size, function(success, webp_path, avif_path)
-			completed = completed + 1
+		-- Determine which scales to process
+		local scales = is_tiny and { "" } or { "", "2x", "3x" }
 
-			if success then
-				table.insert(new_paths, webp_path)
-				if avif_path then
-					table.insert(new_paths, avif_path)
-				end
-				print(string.format("✓ Completed %d/%d: %s", completed, total, output_name))
-			else
-				has_error = true
-				print("✗ Error: " .. webp_path)
-			end
+		for _, scale_suffix in ipairs(scales) do
+			local scale_part = scale_suffix ~= "" and scale_suffix or ""
+			local output_name = base_name .. suffix .. scale_part .. ".webp"
+			local output_path = path_name .. "/" .. output_name
 
-			-- All images processed
-			if completed == total then
-				if not has_error then
-					-- Sort paths to maintain order
-					table.sort(new_paths)
+			process_image_async(source_path, output_path, size, function(success, webp_path, avif_path)
+				completed = completed + 1
 
-					-- Delete original image
-					vim.fn.delete(source_path)
-
-					-- Replace the line with new imports
-					vim.schedule(function()
-						-- Check if buffer still exists
-						if not vim.api.nvim_buf_is_valid(bufnr) then
-							print("✗ Error: Original buffer no longer exists")
-							return
-						end
-
-						-- Check if mark still exists and get its position
-						local mark_pos = vim.api.nvim_buf_get_mark(bufnr, "I")
-						if not mark_pos or mark_pos[1] == 0 then
-							print("✗ Error: Could not find original line position")
-							return
-						end
-
-						local current_line = mark_pos[1]
-
-						local import_lines = {}
-						local cwd = vim.fn.getcwd()
-
-						for _, full_path in ipairs(new_paths) do
-							local rel_path = full_path:gsub("^" .. vim_patt_escape(cwd), ""):gsub("^/resources/js", "@")
-							local var_name_base = base_name:gsub("[-_](%a)", function(c)
-								return c:upper()
-							end)
-
-							-- Determine if this is webp or avif
-							local extension = full_path:match("%.([^%.]+)$")
-							local format_prefix = ""
-							if extension == "webp" then
-								format_prefix = "Webp"
-							elseif extension == "avif" then
-								format_prefix = "Avif"
-							end
-
-							local suffix_part =
-								full_path:match(vim_patt_escape(base_name) .. "%-(.+)%." .. extension .. "$")
-
-							local var_suffix = ""
-
-							if suffix_part then
-								-- Convert suffix from kebab-case to PascalCase (e.g., "tb-tiny" -> "TbTiny")
-								var_suffix = suffix_part
-									:gsub("^(%a)", function(c)
-										return c:upper()
-									end)
-									:gsub("%-(%a)", function(c)
-										return c:upper()
-									end)
-							else
-								print("⚠ Warning: Could not extract suffix from: " .. full_path)
-							end
-
-							local var_name = (var_name_base:sub(1, 1):upper() .. var_name_base:sub(2))
-								.. var_suffix
-								.. format_prefix
-							local import_line = string.format('import %s from "%s";', var_name, rel_path)
-							table.insert(import_lines, import_line)
-						end
-
-						-- Replace the line where the mark is
-						vim.api.nvim_buf_set_lines(bufnr, current_line - 1, current_line, false, import_lines)
-
-						-- Delete the mark
-						vim.api.nvim_buf_del_mark(bufnr, "I")
-
-						print(string.format("\n✓ All images processed! Created %d variants.", #new_paths))
-					end)
+				if success then
+					table.insert(new_paths, webp_path)
+					if avif_path then
+						table.insert(new_paths, avif_path)
+					end
+					print(string.format("✓ Completed %d/%d: %s", completed, total, output_name))
 				else
-					print("\n✗ Processing completed with errors.")
+					has_error = true
+					print("✗ Error: " .. webp_path)
 				end
-			end
-		end)
+
+				-- All images processed
+				if completed == total then
+					if not has_error then
+						-- Sort paths to maintain order
+						table.sort(new_paths)
+
+						-- Delete original image
+						vim.fn.delete(source_path)
+
+						-- Replace the line with new imports
+						vim.schedule(function()
+							-- Check if buffer still exists
+							if not vim.api.nvim_buf_is_valid(bufnr) then
+								print("✗ Error: Original buffer no longer exists")
+								return
+							end
+
+							-- Check if mark still exists and get its position
+							local mark_pos = vim.api.nvim_buf_get_mark(bufnr, "I")
+							if not mark_pos or mark_pos[1] == 0 then
+								print("✗ Error: Could not find original line position")
+								return
+							end
+
+							local current_line = mark_pos[1]
+
+							local import_lines = {}
+							local cwd = vim.fn.getcwd()
+
+							for _, full_path in ipairs(new_paths) do
+								local rel_path =
+									full_path:gsub("^" .. vim_patt_escape(cwd), ""):gsub("^/resources/js", "@")
+								local var_name_base = base_name:gsub("[-_](%a)", function(c)
+									return c:upper()
+								end)
+
+								-- Determine if this is webp or avif
+								local extension = full_path:match("%.([^%.]+)$")
+								local format_prefix = ""
+								if extension == "webp" then
+									format_prefix = "Webp"
+								elseif extension == "avif" then
+									format_prefix = "Avif"
+								end
+
+								-- Extract suffix part (everything between base_name and extension)
+								local suffix_part =
+									full_path:match(vim_patt_escape(base_name) .. "%-(.+)%." .. extension .. "$")
+
+								local var_suffix = ""
+
+								if suffix_part then
+									-- Convert suffix from kebab-case to PascalCase (e.g., "sm-tiny" -> "SmTiny", "sm2x" -> "Sm2x")
+									var_suffix = suffix_part
+										:gsub("^(%a)", function(c)
+											return c:upper()
+										end)
+										:gsub("%-(%a)", function(c)
+											return c:upper()
+										end)
+								else
+									print("⚠ Warning: Could not extract suffix from: " .. full_path)
+								end
+
+								local var_name = (var_name_base:sub(1, 1):upper() .. var_name_base:sub(2))
+									.. var_suffix
+									.. format_prefix
+								local import_line = string.format('import %s from "%s";', var_name, rel_path)
+								table.insert(import_lines, import_line)
+							end
+
+							-- Replace the line where the mark is
+							vim.api.nvim_buf_set_lines(bufnr, current_line - 1, current_line, false, import_lines)
+
+							-- Delete the mark
+							vim.api.nvim_buf_del_mark(bufnr, "I")
+
+							print(string.format("\n✓ All images processed! Created %d variants.", #new_paths))
+						end)
+					else
+						print("\n✗ Processing completed with errors.")
+					end
+				end
+			end, scale_suffix)
+		end
 	end
 end
 
