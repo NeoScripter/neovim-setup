@@ -18,7 +18,7 @@ return {
                     sail_project_path = "/var/www/html",
                     pest_cmd = "vendor/bin/pest",
                     parallel = 5,
-                    compact = false,
+                    compact = true,
                     results_path = function() return "/some/accessible/path" end,
                 }),
             }

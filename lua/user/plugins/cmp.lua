@@ -89,7 +89,7 @@ return {
 			list = {
 				selection = {
 					preselect = false,
-					auto_insert = true,
+					auto_insert = false,
 				},
 			},
 			keyword = {
@@ -117,6 +117,14 @@ return {
 				lsp = {
 					fallbacks = { "buffer" }, -- Add buffer as fallback
 					score_offset = 50, -- Give LSP higher priority
+					transform_items = function(_, items)
+						for _, item in ipairs(items) do
+							-- Force blink to ignore the LSP's textEdit range
+							-- and just insert at cursor position
+							item.textEdit = nil
+						end
+						return items
+					end,
 				},
 				buffer = {
 					min_keyword_length = 1,
