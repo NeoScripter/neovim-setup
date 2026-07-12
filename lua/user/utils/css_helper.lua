@@ -82,13 +82,48 @@ local function find_css_file()
 	return false
 end
 
+
+local function get_class_under_cursor()
+	local _, col = unpack(vim.api.nvim_win_get_cursor(0))
+	local line = vim.api.nvim_get_current_line()
+
+	col = col + 1
+
+	local best = nil
+	for _, quote in ipairs({ '"', "'" }) do
+		local pattern = quote .. "([^" .. quote .. "]*)" .. quote
+		local search_start = 1
+		while true do
+			local s, e, capture = line:find(pattern, search_start)
+			if not s then
+				break
+			end
+
+			if col >= s and col <= e then
+				best = capture
+				break
+			end
+			search_start = s + 1
+		end
+		if best then
+			break
+		end
+	end
+
+	return best
+end
+
 local function get_classname()
+	local class = get_class_under_cursor()
+
+    if class ~= nil then
+        return class
+    end
+
 	local line = vim.api.nvim_get_current_line()
 
 	local patterns = {
-		[[class%s*=.*css%.([%w%-]+)]],
-		[[classname%s*=.*css%.([%w%-]+)]],
-		[[className%s*=.*css%.([%w%-]+)]],
+		[[css%.([%w%-]+)]],
 		[[class%s*=%s*"([^"]+)"]],
 		[[class%s*=%s*'([^']+)']],
 		[[className%s*=%s*"([^"]+)"]],
@@ -106,15 +141,14 @@ local function get_classname()
 end
 
 function M.run()
+	local class = get_classname()
+
 	if find_css_file() == false then
 		return nil
 	end
 
-	local class = get_classname()
-	print(class)
-
 	if class ~= nil and vim.fn.search(class, "nw") > 0 then
-		vim.api.nvim_input("/" .. class .. "<CR>")
+		vim.api.nvim_input("/\\." .. class .. "<CR>")
 	end
 end
 
