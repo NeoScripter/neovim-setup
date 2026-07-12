@@ -117,11 +117,16 @@ return {
 				lsp = {
 					fallbacks = { "buffer" }, -- Add buffer as fallback
 					score_offset = 50, -- Give LSP higher priority
-					transform_items = function(_, items)
+					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
-							-- Force blink to ignore the LSP's textEdit range
-							-- and just insert at cursor position
-							item.textEdit = nil
+							if item.insertTextFormat ~= 2 and item.textEdit then
+								local newText = item.textEdit.newText or ""
+								-- Keep textEdit if newText starts with dot (method/property completion)
+								-- Stripping it would cause blink to insert at cursor, doubling the dot
+								if not newText:match("^%.") then
+									item.textEdit = nil
+								end
+							end
 						end
 						return items
 					end,

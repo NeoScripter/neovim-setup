@@ -18,8 +18,18 @@ vim.keymap.set("v", ">", ">gv")
 
 -- Maintain the cursor position when yanking a visual selection.
 -- http://ddrscott.github.io/blog/2016/yank-without-jank/
-vim.keymap.set("v", "y", "myy`y")
-vim.keymap.set("v", "Y", "myY`y")
+-- vim.keymap.set("v", "y", "myy`y")
+-- vim.keymap.set("v", "Y", "myY`y")
+
+vim.keymap.set("v", "y", function()
+	if vim.v.register == '"' then
+		-- No register specified, use cursor preservation
+		return "myy`y"
+	else
+		-- Register specified, use default behavior
+		return "y"
+	end
+end, { expr = true })
 
 -- When text is wrapped, move by terminal rows, not lines, unless a count is provided.
 vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true })
@@ -200,12 +210,18 @@ end, { desc = "Generate test from Input/Output block" })
 vim.api.nvim_create_user_command("OrganizeComponent", require("user.utils.organize_component").run, {})
 vim.api.nvim_create_user_command("CalcPercentage", require("user.utils.get-percentage").run, {})
 
-vim.keymap.set(
-	"n",
-	"<leader>w",
-	require("user.utils.class_floater_wrapper").toggle,
-	{ desc = "Open class floating editor" }
-)
+vim.keymap.set("n", "<leader>w", require("user.utils.css_helper").run, { desc = "Open css file" })
+
+-- New ctrl+w tag-aware mode, scoped to relevant filetypes only:
+-- vim.api.nvim_create_autocmd("FileType", {
+-- 	pattern = { "html", "php", "typescriptreact", "javascriptreact" },
+-- 	callback = function(args)
+-- 		vim.keymap.set("n", "<leader>w", require("user.utils.css_class_floater").toggle_element, {
+-- 			buffer = args.buf,
+-- 			desc = "Class floater (tag-aware)",
+-- 		})
+-- 	end,
+-- })
 
 -- vim.keymap.set("n", "<leader>lr", ":luafile %<CR>")
 vim.api.nvim_create_user_command("LuaRun", "luafile %", {})
@@ -231,6 +247,12 @@ vim.keymap.set(
 
 vim.keymap.set(
 	"n",
+	"<leader>ths",
+	require("user.utils.camel-to-snake").camel_to_snake,
+	{ desc = "Convert camel case to snake case" }
+)
+vim.keymap.set(
+	"n",
 	"<leader>io",
 	require("user.utils.insert-class").insert_class,
 	{ desc = "Insert a class in a component" }
@@ -243,10 +265,19 @@ vim.keymap.set(
 	{ desc = "Move image to the component's directory" }
 )
 
-vim.api.nvim_create_user_command("Reload", "lua ReloadConfig()", {})
-
--- vim.keymap.set("n", "<space><space>x", "<cmd>lua ReloadConfig()<CR>")
 -- vim.keymap.set("n", "<space><space>x", "<cmd>source %<CR>")
+
+vim.keymap.set("n", "<space><space>x", function()
+	for name, _ in pairs(package.loaded) do
+		if name:match("^user") and not name:match("nvim-tree") then
+			package.loaded[name] = nil
+		end
+	end
+
+	dofile(vim.env.MYVIMRC)
+	vim.notify("Nvim configuration reloaded!", vim.log.levels.INFO)
+end, { desc = "Reload Neovim config" })
+
 vim.keymap.set("n", "<space>x", ":.lua<CR>")
 vim.keymap.set("v", "<space>x", ":lua<CR>")
 
@@ -263,14 +294,14 @@ vim.api.nvim_create_user_command("EditDownloads", require("user.utils.edit-downl
 vim.keymap.set("n", "<leader>rf", require("user.utils.run_code").run, { desc = "Run code" })
 vim.keymap.set("n", "<leader>hls", require("user.utils.convert-color").convert_color, { desc = "Convert color" })
 
-local python_help = require("user.utils.python_help")
-vim.keymap.set("n", "<leader>ph", python_help.show_help, { desc = "Python help" })
+-- local python_help = require("user.utils.python_help")
+-- vim.keymap.set("n", "<leader>ph", python_help.show_help, { desc = "Python help" })
 
-vim.api.nvim_create_user_command("PythonSearch", require("user.utils.python_search").search_method, {
-	desc = "Python search",
-})
+-- vim.api.nvim_create_user_command("PythonSearch", require("user.utils.python_search").search_method, {
+-- 	desc = "Python search",
+-- })
 
-vim.api.nvim_create_user_command("PHPSearch", require("user.utils.php_search").search_method, { desc = "PHP search" })
+-- vim.api.nvim_create_user_command("PHPSearch", require("user.utils.php_search").search_method, { desc = "PHP search" })
 
 require("user.utils.react-context").setup()
 

@@ -34,7 +34,7 @@ local function move_image_from_downloads_dir()
 	if path == "" then
 		return nil, nil, nil
 	end
-	path = path:gsub("@", "/resources/js")
+	path = path:gsub("@", "/")
 	local fullpath = vim.fn.getcwd() .. path
 	local image_name = fullpath:match("([^/]+)$")
 	local path_name = fullpath:match("(.+)/[^/]+$")
@@ -114,7 +114,7 @@ local function process_image_async(input_path, output_path, width, callback, sca
 		-- Resize to target width and save as PNG
 		string.format("convert '%s' -resize '%sx>' '%s'", input_path, actual_width, temp_png),
 		-- Optimize PNG
-		string.format("optipng -o7 -strip all '%s'", temp_png),
+		string.format("optipng -o4 -strip all '%s'", temp_png),
 		-- Convert to WebP
 		string.format("convert '%s' -quality 75 '%s'", temp_png, output_path),
 	}
