@@ -82,7 +82,6 @@ local function find_css_file()
 	return false
 end
 
-
 local function get_class_under_cursor()
 	local _, col = unpack(vim.api.nvim_win_get_cursor(0))
 	local line = vim.api.nvim_get_current_line()
@@ -110,15 +109,36 @@ local function get_class_under_cursor()
 			break
 		end
 	end
+
 	return best
 end
 
-local function get_classname()
-    local class = get_class_under_cursor()
+local function append_class_and_get_range(classname)
+	local bufnr = 0 -- current buffer
+	local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+	local insert_at = #lines
+	-- Add empty line before if file is not empty
+	local insert_lines = {}
+	if #lines > 0 and lines[#lines] ~= "" then
+		table.insert(insert_lines, "")
+	end
+	table.insert(insert_lines, "." .. classname .. " {")
+	table.insert(insert_lines, "  ")
+	table.insert(insert_lines, "}")
+	vim.api.nvim_buf_set_lines(bufnr, insert_at, insert_at, false, insert_lines)
+	-- return start and end (1-index)
+	local offset = (#lines > 0 and lines[#lines] ~= "") and 1 or 0
+	local start_line = insert_at + 1 + offset
+	local end_line = start_line + 2
+	return start_line, end_line
+end
 
-    if class ~= nil then
-        return class
-    end
+local function get_classname()
+	local class = get_class_under_cursor()
+
+	if class ~= nil then
+		return class
+	end
 
 	local line = vim.api.nvim_get_current_line()
 
@@ -147,7 +167,15 @@ function M.run()
 		return nil
 	end
 
-	if class ~= nil and vim.fn.search(class, "nw") > 0 then
+	if class == nil then
+		return nil
+	end
+
+	if vim.fn.search(class, "nw") > 0 then
+		vim.api.nvim_input("/\\." .. class .. "<CR>")
+	else
+        append_class_and_get_range(class)
+		vim.cmd("silent! write")
 		vim.api.nvim_input("/\\." .. class .. "<CR>")
 	end
 end
