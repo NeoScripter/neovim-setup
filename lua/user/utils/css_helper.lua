@@ -90,6 +90,7 @@ local function get_class_under_cursor()
 	col = col + 1
 
 	local best = nil
+
 	for _, quote in ipairs({ '"', "'" }) do
 		local pattern = quote .. "([^" .. quote .. "]*)" .. quote
 		local search_start = 1
@@ -109,12 +110,11 @@ local function get_class_under_cursor()
 			break
 		end
 	end
-
 	return best
 end
 
 local function get_classname()
-	local class = get_class_under_cursor()
+    local class = get_class_under_cursor()
 
     if class ~= nil then
         return class
