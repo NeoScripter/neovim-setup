@@ -238,6 +238,12 @@ vim.api.nvim_create_user_command(
 	{}
 )
 
+-- vim.api.nvim_create_user_command("CssScope", require("user.utils.css_convert_to_scope").run, {})
+
+vim.keymap.set("v", "<leader>ss", function()
+	require("user.utils.css_convert_to_scope").run()
+end, { desc = "Convert selected to @scope" })
+
 vim.keymap.set(
 	"n",
 	"<leader>tw",

@@ -22,6 +22,21 @@ local function filenames_match(s1, s2)
 	return string.find(normalize_filename(s1), normalize_filename(s2), 1, true) == 1
 end
 
+local function insert_class_block(bufnr, insert_at, classname)
+	local insert_lines = {}
+	local prev_line = ""
+	if insert_at > 0 then
+		prev_line = vim.api.nvim_buf_get_lines(bufnr, insert_at - 1, insert_at, false)[1] or ""
+	end
+	if prev_line ~= "" then
+		table.insert(insert_lines, "")
+	end
+	table.insert(insert_lines, "." .. classname .. " {")
+	table.insert(insert_lines, "  ")
+	table.insert(insert_lines, "}")
+	vim.api.nvim_buf_set_lines(bufnr, insert_at, insert_at, false, insert_lines)
+end
+
 local function find_css_file()
 	local curpath = vim.api.nvim_buf_get_name(0)
 
@@ -113,24 +128,10 @@ local function get_class_under_cursor()
 	return best
 end
 
-local function append_class_and_get_range(classname)
-	local bufnr = 0 -- current buffer
+local function append_class(classname)
+	local bufnr = vim.api.nvim_get_current_buf()
 	local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-	local insert_at = #lines
-	-- Add empty line before if file is not empty
-	local insert_lines = {}
-	if #lines > 0 and lines[#lines] ~= "" then
-		table.insert(insert_lines, "")
-	end
-	table.insert(insert_lines, "." .. classname .. " {")
-	table.insert(insert_lines, "  ")
-	table.insert(insert_lines, "}")
-	vim.api.nvim_buf_set_lines(bufnr, insert_at, insert_at, false, insert_lines)
-	-- return start and end (1-index)
-	local offset = (#lines > 0 and lines[#lines] ~= "") and 1 or 0
-	local start_line = insert_at + 1 + offset
-	local end_line = start_line + 2
-	return start_line, end_line
+	insert_class_block(bufnr, #lines, classname)
 end
 
 local function get_classname()
@@ -158,10 +159,74 @@ local function get_classname()
 			return m
 		end
 	end
+
+	return nil
+end
+
+local function convert_class_to_scope(class)
+	local bufnr = vim.api.nvim_get_current_buf()
+	local current_line = vim.api.nvim_get_current_line()
+	if not current_line:match("^%s*%." .. class) then
+		return
+	end
+
+	local start_row = vim.api.nvim_win_get_cursor(0)[1] -- 1-indexed
+	local open_col = current_line:find("{")
+	if not open_col then
+		return
+	end
+
+	vim.api.nvim_win_set_cursor(0, { start_row, open_col - 1 })
+	local close_row = vim.fn.searchpairpos("{", "", "}", "nW")[1]
+	if close_row == 0 then
+		return
+	end
+
+	local body_lines = vim.api.nvim_buf_get_lines(bufnr, start_row, close_row - 1, false)
+
+	local new_lines = {}
+	table.insert(new_lines, "@scope (." .. class .. ") {")
+	table.insert(new_lines, "  :scope {")
+	for _, l in ipairs(body_lines) do
+		table.insert(new_lines, "  " .. l)
+	end
+	table.insert(new_lines, "  }")
+	table.insert(new_lines, "}")
+
+	vim.api.nvim_buf_set_lines(bufnr, start_row - 1, close_row, false, new_lines)
+
+	local end_row = start_row - 1 + #new_lines
+	return end_row
+end
+
+local function find_class_parent()
+	vim.cmd("normal! ^")
+	local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+	while row > 1 do
+		vim.api.nvim_win_set_cursor(0, { row - 1, col })
+		vim.cmd("normal! ^")
+		local new_row, new_col = unpack(vim.api.nvim_win_get_cursor(0))
+		row = new_row
+		local line = vim.api.nvim_get_current_line()
+		if line:match("^%s*$") then
+			goto continue
+		end
+		if new_col > col then
+			return nil
+		elseif new_col < col then
+			local class = get_classname()
+			if class ~= nil then
+				return class
+			end
+		end
+		::continue::
+	end
+	return nil
 end
 
 function M.run()
 	local class = get_classname()
+	local parent = find_class_parent()
 
 	if find_css_file() == false then
 		return nil
@@ -171,12 +236,29 @@ function M.run()
 		return nil
 	end
 
-	if vim.fn.search(class, "nw") > 0 then
-		vim.api.nvim_input("/\\." .. class .. "<CR>")
-	else
-        append_class_and_get_range(class)
+	if vim.fn.search(class, "nwc") <= 0 then
+		if parent ~= nil then
+			local row = vim.fn.search("@scope (\\." .. parent .. ")", "wc")
+			if row == 0 then
+				append_class(class)
+			else
+				local bufnr = vim.api.nvim_get_current_buf()
+				local scope_end = vim.fn.search("}", "n")
+
+				if scope_end == 0 then
+					scope_end = row
+				end
+				insert_class_block(bufnr, scope_end, class)
+			end
+		else
+			append_class(class)
+		end
 		vim.cmd("silent! write")
-		vim.api.nvim_input("/\\." .. class .. "<CR>")
+	end
+
+	local found = vim.fn.search("\\." .. class, "w")
+	if found <= 0 then
+		return nil
 	end
 end
 
