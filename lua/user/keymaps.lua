@@ -210,7 +210,7 @@ end, { desc = "Generate test from Input/Output block" })
 vim.api.nvim_create_user_command("OrganizeComponent", require("user.utils.organize_component").run, {})
 vim.api.nvim_create_user_command("CalcPercentage", require("user.utils.get-percentage").run, {})
 
-vim.keymap.set("n", "<leader>w", require("user.utils.css_helper").run, { desc = "Open css file" })
+vim.keymap.set("n", "<leader>w", require("user.utils.css.css_helper").run, { desc = "Open css file" })
 
 -- New ctrl+w tag-aware mode, scoped to relevant filetypes only:
 -- vim.api.nvim_create_autocmd("FileType", {
@@ -238,19 +238,27 @@ vim.api.nvim_create_user_command(
 	{}
 )
 
--- vim.api.nvim_create_user_command("CssScope", require("user.utils.css_convert_to_scope").run, {})
-
-vim.keymap.set("v", "<leader>ss", function()
-	require("user.utils.css_convert_to_scope").run()
-end, { desc = "Convert selected to @scope" })
-
-vim.keymap.set(
-	"n",
-	"<leader>tw",
-	require("user.utils.convert-to-rem").convert_to_rem,
-	{ desc = "Convert a number to Tailwind size" }
+vim.api.nvim_create_user_command(
+	"CssConvertToScope",
+	require("user.utils.css.css_convert_to_scope").run,
+	{ desc = "Convert a css class to a css scope" }
 )
 
+-- vim.keymap.set("v", "<leader>ss", function()
+-- 	require("user.utils.css_convert_to_scope").run()
+-- end, { desc = "Convert selected to @scope" })
+
+vim.api.nvim_create_user_command(
+	"NumToRem",
+	require("user.utils.number.convert_to_rem").run,
+	{ desc = "Convert a number to rem" }
+)
+
+vim.api.nvim_create_user_command(
+	"NumToTailwind",
+	require("user.utils.number.convert_to_tailwind").run,
+	{ desc = "Convert a number to a tailwind class" }
+)
 vim.keymap.set(
 	"n",
 	"<leader>ths",
