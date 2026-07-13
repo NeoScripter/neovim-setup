@@ -208,24 +208,8 @@ end, { desc = "Generate test from Input/Output block" })
 -- })
 
 vim.api.nvim_create_user_command("OrganizeComponent", require("user.utils.organize_component").run, {})
-vim.api.nvim_create_user_command("CalcPercentage", require("user.utils.get-percentage").run, {})
 
 vim.keymap.set("n", "<leader>w", require("user.utils.css.css_helper").run, { desc = "Open css file" })
-
--- New ctrl+w tag-aware mode, scoped to relevant filetypes only:
--- vim.api.nvim_create_autocmd("FileType", {
--- 	pattern = { "html", "php", "typescriptreact", "javascriptreact" },
--- 	callback = function(args)
--- 		vim.keymap.set("n", "<leader>w", require("user.utils.css_class_floater").toggle_element, {
--- 			buffer = args.buf,
--- 			desc = "Class floater (tag-aware)",
--- 		})
--- 	end,
--- })
-
--- vim.keymap.set("n", "<leader>lr", ":luafile %<CR>")
-vim.api.nvim_create_user_command("LuaRun", "luafile %", {})
--- vim.api.nvim_create_user_command("PythonRun", "!python3 %", {})
 
 vim.api.nvim_create_user_command(
 	"PreactComponent",
@@ -242,6 +226,12 @@ vim.api.nvim_create_user_command(
 	"CssConvertToScope",
 	require("user.utils.css.css_convert_to_scope").run,
 	{ desc = "Convert a css class to a css scope" }
+)
+
+vim.api.nvim_create_user_command(
+	"NumCalculatePercentage",
+	require("user.utils.number.get_percentage").run,
+	{ desc = "Get the percentage of one number relative to the other" }
 )
 
 -- vim.keymap.set("v", "<leader>ss", function()
