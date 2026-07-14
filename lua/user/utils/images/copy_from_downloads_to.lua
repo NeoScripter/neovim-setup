@@ -51,6 +51,8 @@ function M.run(cb)
 				dest_dir = dest_dir .. "/" .. subfolder
 			end
 
+			dest_dir = dest_dir:gsub("//", "/")
+
 			vim.ui.input({
 				prompt = "Enter the new image name (press Enter to keep original): ",
 				default = choice:match("(.*)%.[%w]+$"),
@@ -80,6 +82,7 @@ function M.run(cb)
 
 				local source = downloads_dir .. choice
 				local dest = dest_dir .. "/" .. final_name
+				dest = dest:gsub("//", "/")
 				vim.fn.delete(dest)
 
 				local result = vim.fn.filecopy(source, dest)

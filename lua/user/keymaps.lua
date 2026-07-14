@@ -264,6 +264,12 @@ vim.api.nvim_create_user_command(
 	{ desc = "Resize an image to a desired size" }
 )
 
+vim.api.nvim_create_user_command(
+	"ImageMakeVariants",
+	require("user.utils.images.image_make_variants").run,
+	{ desc = "Make responsive image variants in webp and avif format" }
+)
+
 vim.keymap.set(
 	"n",
 	"<leader>ths",
