@@ -249,6 +249,19 @@ vim.api.nvim_create_user_command(
 	require("user.utils.number.convert_to_tailwind").run,
 	{ desc = "Convert a number to a tailwind class" }
 )
+
+vim.api.nvim_create_user_command(
+	"ImageCopyFromDownloads",
+	require("user.utils.images.copy_from_downloads_to").run,
+	{ desc = "Copy an image from the downloads folder" }
+)
+
+vim.api.nvim_create_user_command(
+	"ImageConvertToFormat",
+	require("user.utils.images.image_convert_to").run,
+	{ desc = "Convert an image to a desired format" }
+)
+
 vim.keymap.set(
 	"n",
 	"<leader>ths",
