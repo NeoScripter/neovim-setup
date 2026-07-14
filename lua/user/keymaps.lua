@@ -247,27 +247,9 @@ vim.api.nvim_create_user_command(
 )
 
 vim.api.nvim_create_user_command(
-	"ImageCopyFromDownloads",
-	require("user.utils.images.copy_from_downloads_to").run,
-	{ desc = "Copy an image from the downloads folder" }
-)
-
-vim.api.nvim_create_user_command(
-	"ImageConvertToFormat",
-	require("user.utils.images.image_convert_to").run,
-	{ desc = "Convert an image to a desired format" }
-)
-
-vim.api.nvim_create_user_command(
-	"ImageResizeTo",
-	require("user.utils.images.image_resize_to").run,
-	{ desc = "Resize an image to a desired size" }
-)
-
-vim.api.nvim_create_user_command(
-	"ImageMakeVariants",
-	require("user.utils.images.image_make_variants").run,
-	{ desc = "Make responsive image variants in webp and avif format" }
+	"ImageUtils",
+	require("user.utils.images.image_utils_menu").run,
+	{ desc = "Select image utility helper" }
 )
 
 vim.keymap.set(
