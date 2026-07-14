@@ -20,7 +20,7 @@ function M.run(callback)
 
 	local image_files = vim.tbl_filter(function(file)
 		local ext = file:match("%.([%w]+)$")
-		return ext and vim.tbl_contains({ "png", "jpg", "jpeg", "gif", "svg", "webp" }, ext:lower())
+		return ext and vim.tbl_contains({ "avif", "png", "jpg", "jpeg", "gif", "svg", "webp" }, ext:lower())
 	end, downloads)
 
 	vim.ui.select(image_files, {
