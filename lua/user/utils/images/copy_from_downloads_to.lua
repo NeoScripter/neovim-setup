@@ -1,11 +1,11 @@
 local downloads_dir = "/home/ilya/Downloads/"
 local M = {}
 
-function M.run(callback)
-	if callback ~= nil and type(callback) ~= "function" then
-		callback = nil
+function M.run(cb)
+	if cb ~= nil and type(cb) ~= "function" then
+		cb = nil
 	end
-	callback = callback or function() end
+	cb = cb or function() end
 
 	local downloads = vim.fn.readdir(downloads_dir)
 	local utils = require("user.utils.images.utils")
@@ -34,7 +34,7 @@ function M.run(callback)
 				{ "\n ✗ Process aborted", "ErrorMsg" },
 			}, false, {})
 
-			return callback(nil)
+			return cb(nil)
 		end
 
 		vim.ui.input({
@@ -42,7 +42,7 @@ function M.run(callback)
 			default = "",
 		}, function(subfolder)
 			if subfolder == nil then
-				return callback(nil)
+				return cb(nil)
 			end
 
 			local dest_dir = assets_dir
@@ -60,7 +60,7 @@ function M.run(callback)
 						{ "\n ✗ Process aborted" },
 					}, false, {})
 
-					return callback(nil)
+					return cb(nil)
 				end
 
 				local final_name = new_name
@@ -88,12 +88,12 @@ function M.run(callback)
 					vim.api.nvim_echo({
 						{ "\n ✓ Copied: " .. choice .. " -> " .. dest, "DiagnosticOk" },
 					}, false, {})
-					callback(dest)
+					cb(dest)
 				else
 					vim.api.nvim_echo({
 						{ "\n ✗ Failed to copy file: " .. source .. " -> " .. dest, "ErrorMsg" },
 					}, false, {})
-					callback(nil)
+					cb(nil)
 				end
 			end)
 		end)

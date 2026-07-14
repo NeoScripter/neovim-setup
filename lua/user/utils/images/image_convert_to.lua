@@ -1,12 +1,17 @@
 local M = {}
 
-function M.run()
+function M.run(cb)
+	if cb ~= nil and type(cb) ~= "function" then
+		cb = nil
+	end
+	cb = cb or function() end
+
 	vim.ui.input({
 		prompt = "Enter the filename: ",
 		default = "",
 	}, function(filename)
 		if filename == nil then
-			return nil
+			return cb(nil)
 		end
 
 		local utils = require("user.utils.images.utils")
@@ -17,7 +22,7 @@ function M.run()
 			vim.api.nvim_echo({
 				{ "\n ✗ Could not find any files with this name", "ErrorMsg" },
 			}, false, {})
-			return nil
+			return cb(nil)
 		end
 
 		vim.ui.select(matched_files, {
@@ -28,10 +33,10 @@ function M.run()
 		}, function(path)
 			if not path then
 				vim.api.nvim_echo({
-					{ "\n ✗ Process aborted" },
+					{ "\n ✗ Process aborted", "ErrorMsg" },
 				}, false, {})
 
-				return nil
+				return cb(nil)
 			end
 
 			local formats = { "png", "webp", "jpg", "avif" }
@@ -44,39 +49,18 @@ function M.run()
 			}, function(format)
 				if not format then
 					vim.api.nvim_echo({
-						{ "\n ✗ Process aborted" },
+						{ "\n ✗ Process aborted", "ErrorMsg" },
 					}, false, {})
 
-					return nil
+					return cb(nil)
 				end
 
-				local ext = path:match("%.([%w]+)$")
-				local output = path:gsub(ext, format)
-				local message = ""
+				local final_path = utils.convert_image_to(format, path)
 
-				if format == "webp" then
-					message = vim.fn.system({ "cwebp", path, "-q", "75", "-m", "6", "-o", output })
-				elseif format == "avif" then
-					message = vim.fn.system({
-						"avifenc",
-						"-a",
-						"cq-level=38",
-						"-a",
-						"tune=ssim",
-						"--speed",
-						"6",
-						"--yuv",
-						"420",
-						path,
-						"-o",
-						output,
-					})
-				end
-
-                print("\n" .. message:sub(0, 120))
+				cb(final_path)
 
 				vim.api.nvim_echo({
-					{ "\n ✓ Converted: " .. path .. " -> " .. output },
+					{ "\n ✓ Converted: " .. path .. " -> " .. final_path },
 				}, false, {})
 			end)
 		end)
