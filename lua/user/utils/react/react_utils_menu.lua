@@ -8,9 +8,9 @@ local options = {
 -- stylua: ignore end
 
 function M.run()
-	if vim.bo.filetype ~= "jsx" and vim.bo.filetype ~= "tsx" then
+	if not vim.tbl_contains({ "javascript", "typescript", "javascriptreact", "typescriptreact" }, vim.bo.filetype) then
 		vim.api.nvim_echo({
-			{ "\n ✗ This method must be called only in jsx or tsx projects", "ErrorMsg" },
+			{ "\n ✗ This method must be called only in ts, js, jsx or tsx projects", "ErrorMsg" },
 		}, false, {})
 		return
 	end
