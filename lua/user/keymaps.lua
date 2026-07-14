@@ -247,6 +247,13 @@ vim.api.nvim_create_user_command(
 )
 
 vim.api.nvim_create_user_command(
+	"ReactUtils",
+	require("user.utils.react.react_utils_menu").run,
+	{ desc = "Print image variants in a React project" }
+)
+
+
+vim.api.nvim_create_user_command(
 	"ImageUtils",
 	require("user.utils.images.image_utils_menu").run,
 	{ desc = "Select image utility helper" }
@@ -263,13 +270,6 @@ vim.keymap.set(
 	"<leader>io",
 	require("user.utils.insert-class").insert_class,
 	{ desc = "Insert a class in a component" }
-)
-
-vim.keymap.set(
-	"n",
-	"<leader>ri",
-	require("user.utils.optimize-image").optimize_image,
-	{ desc = "Move image to the component's directory" }
 )
 
 -- vim.keymap.set("n", "<space><space>x", "<cmd>source %<CR>")
@@ -300,15 +300,6 @@ vim.api.nvim_create_user_command("EditDownloads", require("user.utils.edit-downl
 
 vim.keymap.set("n", "<leader>rf", require("user.utils.run_code").run, { desc = "Run code" })
 vim.keymap.set("n", "<leader>hls", require("user.utils.convert-color").convert_color, { desc = "Convert color" })
-
--- local python_help = require("user.utils.python_help")
--- vim.keymap.set("n", "<leader>ph", python_help.show_help, { desc = "Python help" })
-
--- vim.api.nvim_create_user_command("PythonSearch", require("user.utils.python_search").search_method, {
--- 	desc = "Python search",
--- })
-
--- vim.api.nvim_create_user_command("PHPSearch", require("user.utils.php_search").search_method, { desc = "PHP search" })
 
 require("user.utils.react-context").setup()
 
