@@ -234,10 +234,6 @@ vim.api.nvim_create_user_command(
 	{ desc = "Get the percentage of one number relative to the other" }
 )
 
--- vim.keymap.set("v", "<leader>ss", function()
--- 	require("user.utils.css_convert_to_scope").run()
--- end, { desc = "Convert selected to @scope" })
-
 vim.api.nvim_create_user_command(
 	"NumToRem",
 	require("user.utils.number.convert_to_rem").run,
@@ -260,6 +256,12 @@ vim.api.nvim_create_user_command(
 	"ImageConvertToFormat",
 	require("user.utils.images.image_convert_to").run,
 	{ desc = "Convert an image to a desired format" }
+)
+
+vim.api.nvim_create_user_command(
+	"ImageResizeTo",
+	require("user.utils.images.image_resize_to").run,
+	{ desc = "Resize an image to a desired size" }
 )
 
 vim.keymap.set(

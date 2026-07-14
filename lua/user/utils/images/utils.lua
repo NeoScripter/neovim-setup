@@ -21,7 +21,13 @@ function M.convert_image_to(format, path)
 		vim.fn.system({ "oxipng", "-o", "2", "--strip", "safe", "--alpha", output })
 	end
 
-    return output;
+	return output
+end
+
+function M.resize_image_to(size, path, new_path)
+	vim.fn.system({ "convert", path, "-resize", size, "x>", new_path })
+
+	return new_path
 end
 
 return M

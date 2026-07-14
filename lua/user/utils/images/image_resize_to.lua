@@ -14,6 +14,7 @@ function M.run(cb)
 			vim.api.nvim_echo({
 				{ "\n ✗ Process aborted", "ErrorMsg" },
 			}, false, {})
+
 			return cb(nil)
 		end
 
@@ -29,7 +30,7 @@ function M.run(cb)
 		end
 
 		vim.ui.select(matched_files, {
-			prompt = "Select image to convert:",
+			prompt = "Select image to resize:",
 			format_item = function(item)
 				return item:gsub(root, "")
 			end,
@@ -42,28 +43,23 @@ function M.run(cb)
 				return cb(nil)
 			end
 
-			local formats = { "png", "webp", "jpg", "avif" }
-
-			vim.ui.select(formats, {
-				prompt = "Select format:",
-				format_item = function(item)
-					return item
-				end,
-			}, function(format)
-				if not format then
+			vim.ui.input({
+				prompt = "Enter the size: ",
+				default = "",
+			}, function(size)
+				if size == nil then
 					vim.api.nvim_echo({
 						{ "\n ✗ Process aborted", "ErrorMsg" },
 					}, false, {})
-
 					return cb(nil)
 				end
 
-				local final_path = utils.convert_image_to(format, path)
+				local final_path = utils.resize_image_to(size, path, path)
 
 				cb(final_path)
 
 				vim.api.nvim_echo({
-					{ "\n ✓ Converted: " .. path .. " -> " .. final_path },
+					{ "\n ✓ resized: " .. final_path .. " -> " .. size },
 				}, false, {})
 			end)
 		end)
@@ -71,18 +67,3 @@ function M.run(cb)
 end
 
 return M
-
---[[
-    Stages:
-    1) copy image from downloads to the specified directory
-    2) convert to a desired format
-    3) optimize the image
-    4) process each image separately
-
-
-    Utils:
-    1) Move image from downloads
-    2) Convert image to a specified format
-    3) Optimize the image
-    4) Resize the image
---]]
