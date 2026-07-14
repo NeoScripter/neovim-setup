@@ -1,10 +1,41 @@
 local M = {}
 
 function M.run()
-	local handler = require("user.utils.images.copy_from_downloads_to")
+	vim.ui.input({
+		prompt = "Enter the filename: ",
+		default = "",
+	}, function(filename)
+		if filename == nil then
+			return nil
+		end
 
-	handler.run(function(result)
-		print(result)
+		local utils = require("user.utils.images.utils")
+		local root = utils.get_project_root()
+		local matched_files = vim.fn.globpath(root, "**/*" .. filename .. "*", false, true)
+
+		if next(matched_files) == nil then
+			vim.api.nvim_echo({
+				{ "\n ✗ Could not find any files with this name", "ErrorMsg" },
+			}, false, {})
+			return nil
+		end
+
+		vim.ui.select(matched_files, {
+			prompt = "Select image to convert:",
+			format_item = function(item)
+				return item:gsub(root, "")
+			end,
+		}, function(path)
+			if not path then
+				vim.api.nvim_echo({
+					{ "\n ✗ Process aborted" },
+				}, false, {})
+
+				return nil
+			end
+
+			print(path)
+		end)
 	end)
 end
 

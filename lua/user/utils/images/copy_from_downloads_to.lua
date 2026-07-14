@@ -1,17 +1,15 @@
 local downloads_dir = "/home/ilya/Downloads/"
 local M = {}
-local function get_project_root()
-	return vim.fs.root(
-		0,
-		{ { ".git", "package.json", "composer.json", "vite.config", "node_modules", "index.html" }, ".git" }
-	)
-end
 
 function M.run(callback)
+	if callback ~= nil and type(callback) ~= "function" then
+		callback = nil
+	end
 	callback = callback or function() end
 
 	local downloads = vim.fn.readdir(downloads_dir)
-	local root = get_project_root()
+	local utils = require("user.utils.images.utils")
+	local root = utils.get_project_root()
 	local assets_dir = vim.fn.globpath(root, "**/assets", false, true, true)
 
 	if next(assets_dir) == nil then
@@ -31,8 +29,11 @@ function M.run(callback)
 			return item
 		end,
 	}, function(choice)
-
 		if not choice then
+			vim.api.nvim_echo({
+				{ "\n ✗ Process aborted", "ErrorMsg" },
+			}, false, {})
+
 			return callback(nil)
 		end
 
@@ -40,7 +41,6 @@ function M.run(callback)
 			prompt = "Subfolder (optional, relative to " .. assets_dir:gsub(root, "") .. "): ",
 			default = "",
 		}, function(subfolder)
-
 			if subfolder == nil then
 				return callback(nil)
 			end
@@ -55,8 +55,11 @@ function M.run(callback)
 				prompt = "Enter the new image name (press Enter to keep original): ",
 				default = choice:match("(.*)%.[%w]+$"),
 			}, function(new_name)
-
 				if new_name == nil then
+					vim.api.nvim_echo({
+						{ "\n ✗ Process aborted" },
+					}, false, {})
+
 					return callback(nil)
 				end
 
@@ -82,10 +85,14 @@ function M.run(callback)
 				local result = vim.fn.filecopy(source, dest)
 
 				if result == 1 then
-					print("Copied: " .. choice .. " -> " .. dest)
+					vim.api.nvim_echo({
+						{ "\n ✓ Copied: " .. choice .. " -> " .. dest, "DiagnosticOk" },
+					}, false, {})
 					callback(dest)
 				else
-					print("Failed to copy file: " .. source .. " -> " .. dest)
+					vim.api.nvim_echo({
+						{ "\n ✗ Failed to copy file: " .. source .. " -> " .. dest, "ErrorMsg" },
+					}, false, {})
 					callback(nil)
 				end
 			end)
