@@ -135,14 +135,6 @@ vim.keymap.set(
 
 -- vim.keymap.set("n", "<leader>tt", "<cmd>ToggleTerm<CR>", { noremap = true, silent = true })
 vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], { noremap = true, silent = true })
--- vim.keymap.set("i", "<C-e>", function()
--- 	vim.lsp.buf.execute_command({
--- 		command = "_emmet.expandAbbreviation",
--- 		arguments = {
--- 			vim.api.nvim_get_current_line(),
--- 		},
--- 	})
--- end, { noremap = true, silent = true })
 
 vim.keymap.set("n", "<leader>+", ":vertical resize +10<CR>", { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>-", ":vertical resize -10<CR>", { noremap = true, silent = true })
@@ -160,67 +152,13 @@ vim.keymap.set("t", "<C-k>", "<Up>", { noremap = true, silent = true })
 
 vim.keymap.set("n", "<C-p>", "lf-<Esc>i<CR><Esc>", { noremap = true, silent = true })
 
--- Quickfix navigation
--- vim.keymap.set("n", "<M-j>", "<cmd>cnext<CR>", { noremap = true, silent = true })
--- vim.keymap.set("n", "<M-k>", "<cmd>cprev<CR>", { noremap = true, silent = true })
-
--- vim.keymap.set("n", "<leader>ipc", function()
--- 	-- Get file name without extension
--- 	local filename = vim.fn.expand("%:t:r")
-
--- 	-- Convert kebab-case or snake_case to PascalCase
--- 	local function to_pascal_case(name)
--- 		name = name:gsub("[-_](%w)", function(c)
--- 			return c:upper()
--- 		end)
--- 		return name:sub(1, 1):upper() .. name:sub(2)
--- 	end
-
--- 	local component_name = to_pascal_case(filename)
-
--- 	local scaffold = string.format(
--- 		[[
--- import { FC } from 'preact/compat';
-
--- const %s: FC<{ className?: string }> = ({ className }) => {
---     return ()
--- };
-
--- export default %s;
--- ]],
--- 		component_name,
--- 		component_name
--- 	)
-
--- 	vim.api.nvim_put(vim.split(scaffold, "\n"), "l", true, true)
--- end, { desc = "Insert Preact component scaffold" })
-
--- local ipc = require("user.utils.insert-preact-component")
-
--- vim.keymap.set("n", "<leader>ipc", ipc.insert_preact_component, { desc = "Insert Preact component scaffold" })
-
 vim.keymap.set("n", "<leader>clt", function()
 	require("user.utils.generate-test").generate_test()
 end, { desc = "Generate test from Input/Output block" })
 
--- vim.keymap.set("n", "<leader>oc", require("user.utils.organize_component").run, {
--- 	desc = "Organize TSX component",
--- })
-
 vim.api.nvim_create_user_command("OrganizeComponent", require("user.utils.organize_component").run, {})
 
 vim.keymap.set("n", "<leader>w", require("user.utils.css.css_helper").run, { desc = "Open css file" })
-
-vim.api.nvim_create_user_command(
-	"PreactComponent",
-	require("user.utils.insert-preact-component").insert_preact_component,
-	{}
-)
-vim.api.nvim_create_user_command(
-	"ReactComponent",
-	require("user.utils.insert-react-component").insert_react_component,
-	{}
-)
 
 vim.api.nvim_create_user_command(
 	"NumCalculatePercentage",
