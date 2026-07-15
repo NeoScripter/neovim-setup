@@ -247,15 +247,20 @@ vim.api.nvim_create_user_command(
 )
 
 vim.api.nvim_create_user_command(
+	"CssUtils",
+	require("user.utils.css.css_utils_menu").run,
+	{ desc = "Open CSS utility menu" }
+)
+vim.api.nvim_create_user_command(
 	"ReactUtils",
 	require("user.utils.react.react_utils_menu").run,
-	{ desc = "Print image variants in a React project" }
+	{ desc = "Open React utility menu" }
 )
 
 vim.api.nvim_create_user_command(
 	"ImageUtils",
 	require("user.utils.images.image_utils_menu").run,
-	{ desc = "Select image utility helper" }
+	{ desc = "Open image utility menu" }
 )
 
 vim.keymap.set(

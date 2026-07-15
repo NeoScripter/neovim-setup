@@ -1,22 +1,14 @@
 local M = {}
 
--- stylua: ignore start
 local options = {
-	copy = "📥 Import image from downloads",
-	resize = "↕️ Resize to specific dimensions",
-	convert = "🖼️ Convert to different format",
-	variants = "📚 Create responsive variants",
+	{ key = "copy", value = "📥 Import image from downloads" },
+	{ key = "resize", value = "↕️ Resize to specific dimensions" },
+	{ key = "convert", value = "🖼️ Convert to different format" },
+	{ key = "variants", value = "📚 Create responsive variants" },
 }
--- stylua: ignore end
 
 function M.run()
-	local items = {}
-
-	for key, value in pairs(options) do
-		table.insert(items, { key = key, value = value })
-	end
-
-	vim.ui.select(items, {
+	vim.ui.select(options, {
 		prompt = "Select the method:",
 		format_item = function(item)
 			return item.value

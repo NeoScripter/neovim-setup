@@ -1,11 +1,9 @@
 local M = {}
 
--- stylua: ignore start
 local options = {
-	images = "📥 Print image imports",
-	component = "📥 Create a React component",
+	{ key = "images", value = "📥 Print image imports" },
+	{ key = "component", value = "📥 Create a React component" },
 }
--- stylua: ignore end
 
 function M.run()
 	if not vim.tbl_contains({ "javascript", "typescript", "javascriptreact", "typescriptreact" }, vim.bo.filetype) then
@@ -13,13 +11,7 @@ function M.run()
 		return
 	end
 
-	local items = {}
-
-	for key, value in pairs(options) do
-		table.insert(items, { key = key, value = value })
-	end
-
-	vim.ui.select(items, {
+	vim.ui.select(options, {
 		prompt = "Select the method:",
 		format_item = function(item)
 			return item.value
