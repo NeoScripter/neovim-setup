@@ -1,5 +1,37 @@
 local M = {}
 
+-- function M.snake_to_camel(str)
+-- 	if type(str) ~= "string" or str == "" then
+-- 		return str or ""
+-- 	end
+
+-- 	-- Split on underscores, preserving structure
+-- 	local parts = {}
+-- 	for part in str:gmatch("([^_]*)_?") do
+-- 		table.insert(parts, part)
+-- 	end
+-- 	-- gmatch with this pattern can leave a trailing empty match; drop it
+-- 	if parts[#parts] == "" then
+-- 		table.remove(parts)
+-- 	end
+
+-- 	if #parts == 0 then
+-- 		return ""
+-- 	end
+
+-- 	local result = { parts[1]:lower() }
+-- 	for i = 2, #parts do
+-- 		local part = parts[i]
+-- 		if part ~= "" then
+-- 			-- Capitalize first letter, keep rest as-is (preserves acronyms like "ID", "URL")
+-- 			result[#result + 1] = part:sub(1, 1):upper() .. part:sub(2)
+-- 		end
+-- 	end
+
+-- 	return table.concat(result)
+-- end
+
+
 function M.snake_to_camel(str)
 	if type(str) ~= "string" or str == "" then
 		return str or ""
@@ -30,6 +62,9 @@ function M.snake_to_camel(str)
 
 	return table.concat(result)
 end
+
+-- print(( "hello" ):gsub("^%l", string.upper))
+
 
 function M.camel_to_snake(str)
 	if type(str) ~= "string" or str == "" then
@@ -134,5 +169,6 @@ function M.kebab_to_pascal(str)
 	end
 	return table.concat(result)
 end
+
 
 return M

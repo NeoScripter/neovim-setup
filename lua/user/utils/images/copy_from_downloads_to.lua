@@ -30,10 +30,7 @@ function M.run(cb)
 		end,
 	}, function(choice)
 		if not choice then
-			vim.api.nvim_echo({
-				{ "\n ✗ Process aborted", "ErrorMsg" },
-			}, false, {})
-
+			echo_error()
 			return cb(nil)
 		end
 

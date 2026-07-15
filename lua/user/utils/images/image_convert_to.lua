@@ -11,9 +11,7 @@ function M.run(cb)
 		default = "",
 	}, function(filename)
 		if filename == nil then
-			vim.api.nvim_echo({
-				{ "\n ✗ Process aborted", "ErrorMsg" },
-			}, false, {})
+			echo_error("Process aborted")
 			return cb(nil)
 		end
 
@@ -22,9 +20,7 @@ function M.run(cb)
 		local matched_files = vim.fn.globpath(root, "**/*" .. filename .. "*", false, true)
 
 		if next(matched_files) == nil then
-			vim.api.nvim_echo({
-				{ "\n ✗ Could not find any files with this name", "ErrorMsg" },
-			}, false, {})
+			echo_error("Could not find any files with this name")
 			return cb(nil)
 		end
 
@@ -35,10 +31,7 @@ function M.run(cb)
 			end,
 		}, function(path)
 			if not path then
-				vim.api.nvim_echo({
-					{ "\n ✗ Process aborted", "ErrorMsg" },
-				}, false, {})
-
+				echo_error("Process aborted")
 				return cb(nil)
 			end
 
@@ -51,10 +44,7 @@ function M.run(cb)
 				end,
 			}, function(format)
 				if not format then
-					vim.api.nvim_echo({
-						{ "\n ✗ Process aborted", "ErrorMsg" },
-					}, false, {})
-
+					echo_error("Process aborted")
 					return cb(nil)
 				end
 
@@ -62,9 +52,7 @@ function M.run(cb)
 
 				cb(final_path)
 
-				vim.api.nvim_echo({
-					{ "\n ✓ Converted: " .. path .. " -> " .. final_path },
-				}, false, {})
+				echo_success("Converted: " .. path .. " -> " .. final_path)
 			end)
 		end)
 	end)

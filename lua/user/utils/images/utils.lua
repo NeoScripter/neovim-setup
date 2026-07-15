@@ -22,9 +22,7 @@ function M.convert_image_to(format, path)
 	end
 
 	if vim.v.shell_error ~= 0 then
-		vim.api.nvim_echo({
-			{ "\n ✗ Convertion failed: " .. output, "ErrorMsg" },
-		}, false, {})
+		echo_error("Convertion failed: " .. output)
 		return nil
 	end
 
@@ -36,9 +34,7 @@ function M.resize_image_to(size, path, new_path)
     local output = vim.fn.system({ "convert", path, "-filter", "Lanczos", "-resize", size .. "x", new_path })
 
 	if vim.v.shell_error ~= 0 then
-		vim.api.nvim_echo({
-			{ "\n ✗ Resize failed: " .. output, "ErrorMsg" },
-		}, false, {})
+		echo_error("Resize failed: " .. output)
 		return nil
 	end
 

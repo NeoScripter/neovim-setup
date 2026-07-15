@@ -23,9 +23,7 @@ function M.run()
 		end,
 	}, function(method)
 		if not method then
-			vim.api.nvim_echo({
-				{ "\n ✗ Process aborted", "ErrorMsg" },
-			}, false, {})
+			echo_error("Process aborted")
 			return
 		end
 

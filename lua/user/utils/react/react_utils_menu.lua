@@ -9,9 +9,7 @@ local options = {
 
 function M.run()
 	if not vim.tbl_contains({ "javascript", "typescript", "javascriptreact", "typescriptreact" }, vim.bo.filetype) then
-		vim.api.nvim_echo({
-			{ "\n ✗ This method must be called only in ts, js, jsx or tsx projects", "ErrorMsg" },
-		}, false, {})
+		echo_error("This method must be called only in ts, js, jsx or tsx projects")
 		return
 	end
 
@@ -28,9 +26,7 @@ function M.run()
 		end,
 	}, function(method)
 		if not method then
-			vim.api.nvim_echo({
-				{ "\n ✗ Process aborted", "ErrorMsg" },
-			}, false, {})
+			echo_error("Process aborted")
 			return
 		end
 

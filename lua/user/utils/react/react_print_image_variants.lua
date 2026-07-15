@@ -15,9 +15,7 @@ function M.run()
 		default = "",
 	}, function(filename)
 		if filename == nil then
-			vim.api.nvim_echo({
-				{ "\n ✗ Process aborted", "ErrorMsg" },
-			}, false, {})
+			echo_error("Process aborted")
 			return
 		end
 
@@ -43,9 +41,7 @@ function M.run()
 		end, matched_files)
 
 		if next(matched_files) == nil then
-			vim.api.nvim_echo({
-				{ "\n ✗ Could not find any files with this name", "ErrorMsg" },
-			}, false, {})
+			echo_error("Could not find any files with this name")
 			return
 		end
 
@@ -60,10 +56,7 @@ function M.run()
 			end,
 		}, function(choice)
 			if not choice then
-				vim.api.nvim_echo({
-					{ "\n ✗ Process aborted", "ErrorMsg" },
-				}, false, {})
-
+				echo_error("Process aborted")
 				return
 			end
 
@@ -83,9 +76,7 @@ function M.run()
 			end, variants)
 
 			if next(variants) == nil then
-				vim.api.nvim_echo({
-					{ "\n ✗ Could not find any files with this name", "ErrorMsg" },
-				}, false, {})
+				echo_error("Could not find any files with this name")
 				return
 			end
 

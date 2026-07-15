@@ -8,18 +8,13 @@ function M.run()
 		file = path
 
 		if file == nil then
-			vim.api.nvim_echo({
-				{ "\n ✗ Error tranferring the file from the downloads folder", "ErrorMsg" },
-			}, false, {})
-
+			echo_error("Error tranferring the file from the downloads folder")
 			return
 		end
 
 		local suffixes = vim.fn.input("Enter image suffixes: ")
 		if suffixes == "" then
-			vim.api.nvim_echo({
-				{ "\n ✗ No suffixes provided", "ErrorMsg" },
-			}, false, {})
+			echo_error("No suffixes provided")
 			return
 		end
 
@@ -28,18 +23,14 @@ function M.run()
 		local sizes = vim.fn.input("Enter image sizes: ")
 
 		if sizes == "" then
-			vim.api.nvim_echo({
-				{ "\n ✗ No sizes provided", "ErrorMsg" },
-			}, false, {})
+			echo_error("No sizes provided")
 			return
 		end
 
 		local list_sizes = utils.split(sizes, " ")
 
 		if #list_sizes ~= #list_suffixes then
-			vim.api.nvim_echo({
-				{ "\n ✗ Different number of sizes and suffixes", "ErrorMsg" },
-			}, false, {})
+			echo_error("Different number of sizes and suffixes")
 			return
 		end
 
@@ -57,9 +48,7 @@ function M.run()
 			utils.resize_image_to(30, webp, webp:gsub(".webp", "-" .. suffix .. "-tiny.webp"))
 		end
 
-		vim.api.nvim_echo({
-			{ "\n ✓ Image variants are successfully created" },
-		}, false, {})
+		echo_success("Image variants are successfully created")
 	end)
 end
 

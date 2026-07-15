@@ -1,14 +1,5 @@
 local M = {}
 
-local function split(s, sep)
-	local fields = {}
-	local pattern = string.format("([^%s]+)", sep)
-	s:gsub(pattern, function(c)
-		fields[#fields + 1] = c
-	end)
-	return fields
-end
-
 function M.run()
 	local input = vim.fn.input("Enter two numbers: ")
 	if input == "" then
@@ -16,7 +7,7 @@ function M.run()
 		return
 	end
 
-	local nums = split(input, " ")
+	local nums = vim.fn.split(input, " ")
 
 	if #nums ~= 2 then
 		vim.cmd("redraw")
