@@ -20,7 +20,7 @@ function M.run()
 		end
 
 		local utils = require("user.utils.images.utils")
-		local string_utils = require("user.utils.string.utils")
+		local str = require("user.utils.str.utils")
 		local root = utils.get_project_root()
 
 		local matched_files = vim.fn.globpath(root, "**/*" .. filename .. "*", false, true)
@@ -90,7 +90,7 @@ function M.run()
 				if file_slug ~= nil then
 					file_slug = file_slug:gsub("%.", "-")
 				end
-				file_slug = string_utils.kebab_to_pascal(file_slug)
+				file_slug = str.kebab_to_pascal(file_slug)
 				local import = "import " .. file_slug .. " from '" .. path .. "'"
 				table.insert(new_lines, import)
 			end
