@@ -41,6 +41,7 @@ local function find_css_file()
 	local curpath = vim.api.nvim_buf_get_name(0)
 
 	if curpath == "" then
+		echo_error("Path to the current file not found")
 		return false
 	end
 
@@ -53,7 +54,7 @@ local function find_css_file()
 	end
 
 	if current_dir == nil or current_dir == "" then
-		vim.notify("Could not find current directory", vim.log.levels.INFO)
+		echo_error("Could not find current directory")
 		return false
 	end
 
@@ -75,6 +76,7 @@ local function find_css_file()
 	end)
 
 	if next(files) == nil then
+		echo_error("No CSS or SCSS files were found in the project")
 		return false
 	end
 
@@ -94,6 +96,7 @@ local function find_css_file()
 		end
 	end
 
+	echo_error("Could not read any of the CSS or SCSS files")
 	return false
 end
 
@@ -190,6 +193,12 @@ end
 
 function M.run()
 	local class = get_classname()
+
+	if class == nil then
+		echo_error("No CSS class found")
+		return
+	end
+
 	local parent = find_class_parent()
 
 	if find_css_file() == false then

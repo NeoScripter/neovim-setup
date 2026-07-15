@@ -44,6 +44,13 @@ local function convert_class_to_scope(class)
 end
 
 function M.run()
+	local scope_start = vim.fn.searchpairpos("{", "", "}", "Wb")[1]
+
+	if not scope_start then
+		echo_error("Must be called within css scope")
+		return
+	end
+
 	local class = get_class_under_cursor()
 
 	if class == nil then

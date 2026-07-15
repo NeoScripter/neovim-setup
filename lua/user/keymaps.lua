@@ -223,12 +223,6 @@ vim.api.nvim_create_user_command(
 )
 
 vim.api.nvim_create_user_command(
-	"CssConvertToScope",
-	require("user.utils.css.css_convert_to_scope").run,
-	{ desc = "Convert a css class to a css scope" }
-)
-
-vim.api.nvim_create_user_command(
 	"NumCalculatePercentage",
 	require("user.utils.number.get_percentage").run,
 	{ desc = "Get the percentage of one number relative to the other" }
