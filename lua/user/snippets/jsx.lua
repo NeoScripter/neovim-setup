@@ -1,4 +1,4 @@
-require("luasnip.session.snippet_collection").clear_snippets("typescriptreact")
+require("luasnip.session.snippet_collection").clear_snippets("javascriptreact")
 
 local ls = require("luasnip")
 
@@ -10,7 +10,7 @@ local t = ls.text_node
 
 local fmt = require("luasnip.extras.fmt").fmt
 
-ls.add_snippets("typescriptreact", {
+ls.add_snippets("javascriptreact", {
 	s(
 		"ust",
 		fmt("const [{}, set{}] = useState{}({});", {
