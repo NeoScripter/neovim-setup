@@ -252,7 +252,6 @@ vim.api.nvim_create_user_command(
 	{ desc = "Print image variants in a React project" }
 )
 
-
 vim.api.nvim_create_user_command(
 	"ImageUtils",
 	require("user.utils.images.image_utils_menu").run,
@@ -279,6 +278,10 @@ vim.keymap.set("n", "<space><space>x", function()
 		if name:match("^user") and not name:match("nvim-tree") then
 			package.loaded[name] = nil
 		end
+	end
+
+	for _, ft_path in ipairs(vim.api.nvim_get_runtime_file("lua/user/snippets/*.lua", true)) do
+		loadfile(ft_path)()
 	end
 
 	dofile(vim.env.MYVIMRC)
