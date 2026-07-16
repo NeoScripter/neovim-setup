@@ -16,6 +16,7 @@ ls.add_snippets("php", {
 	s("for", fmt("for ({}) {{\n\t{}\n}}", { i(1), i(2) })),
 	s("comp", fmt("<?= component('{}', [{}]) ?>", { i(1), i(2) })),
 	s("p", fmt("<?php {} ;?>", { i(1) })),
+	s("ps", fmt("<?= {} ?>", { i(1) })),
 	s("pif", fmt("<?php if ({}) :?>\n\t{}\n<?php endif ;?>", { i(1), i(2) })),
 	s("pel", fmt("<?php else :?>\n\t{}", { i(1) })),
 	s("pelif", fmt("<?php elseif ({}) :?>\n\t{}", { i(1), i(2) })),

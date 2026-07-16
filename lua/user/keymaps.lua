@@ -9,8 +9,12 @@ vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 vim.keymap.set("n", "<leader>Q", ":bufdo bdelete<CR>")
 
 -- Diagnostics.
-vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous [d]iagnostic" })
-vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next [d]iagnostic" })
+vim.keymap.set("n", "[d", function()
+	vim.diagnostic.jump({ count = -1, float = true })
+end, { desc = "Go to previous [d]iagnostic" })
+vim.keymap.set("n", "[d", function()
+	vim.diagnostic.jump({ count = 1, float = true })
+end, { desc = "Go to next [d]iagnostic" })
 
 -- Reselect visual selection after indenting.
 vim.keymap.set("v", "<", "<gv")
@@ -266,4 +270,15 @@ end, {
 		end, { "toggle", "open", "close" })
 	end,
 	desc = "Undotree command with subcommands: toggle, open, close",
+})
+
+vim.api.nvim_create_user_command("RefreshBrowser", function()
+	local command = 'i3-msg "workspace number 9"; xdotool key ctrl+r; i3-msg "workspace number 9"'
+	vim.fn.jobstart(command, {
+		detach = true,
+		stdout_buffered = true,
+		stderr_buffered = true,
+	})
+end, {
+	desc = "Edit downloads directory",
 })
