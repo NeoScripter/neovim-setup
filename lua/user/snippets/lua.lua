@@ -9,4 +9,5 @@ local fmt = require("luasnip.extras.fmt").fmt
 
 ls.add_snippets("lua", {
 	s("fn", fmt("function {} ({})\n\t{} \nend", { i(1), i(2), i(3) })),
+	s("if", fmt("if ({}) then\n\t{} \nend\n{}", { i(1), i(2), i(0) })),
 })

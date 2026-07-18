@@ -160,44 +160,7 @@ vim.keymap.set("n", "<leader>clt", function()
 	require("user.utils.generate-test").generate_test()
 end, { desc = "Generate test from Input/Output block" })
 
-vim.api.nvim_create_user_command("OrganizeComponent", require("user.utils.organize_component").run, {})
-
 vim.keymap.set("n", "<leader>w", require("user.utils.css.css_helper").run, { desc = "Open css file" })
-
-vim.api.nvim_create_user_command(
-	"NumCalculatePercentage",
-	require("user.utils.number.get_percentage").run,
-	{ desc = "Get the percentage of one number relative to the other" }
-)
-
-vim.api.nvim_create_user_command(
-	"NumToRem",
-	require("user.utils.number.convert_to_rem").run,
-	{ desc = "Convert a number to rem" }
-)
-
-vim.api.nvim_create_user_command(
-	"NumToTailwind",
-	require("user.utils.number.convert_to_tailwind").run,
-	{ desc = "Convert a number to a tailwind class" }
-)
-
-vim.api.nvim_create_user_command(
-	"CssUtils",
-	require("user.utils.css.css_utils_menu").run,
-	{ desc = "Open CSS utility menu" }
-)
-vim.api.nvim_create_user_command(
-	"ReactUtils",
-	require("user.utils.react.react_utils_menu").run,
-	{ desc = "Open React utility menu" }
-)
-
-vim.api.nvim_create_user_command(
-	"ImageUtils",
-	require("user.utils.images.image_utils_menu").run,
-	{ desc = "Open image utility menu" }
-)
 
 vim.keymap.set(
 	"n",
@@ -232,16 +195,6 @@ end, { desc = "Reload Neovim config" })
 vim.keymap.set("n", "<space>x", ":.lua<CR>")
 vim.keymap.set("v", "<space>x", ":lua<CR>")
 
--- Create a custom command to edit Downloads directory with Oil
-vim.api.nvim_create_user_command("EditDownloads", require("user.utils.edit-downloads").run, {
-	desc = "Edit downloads directory",
-})
-
--- vim.api.nvim_create_autocmd("CompleteDone", {
--- 	group = vim.api.nvim_create_augroup("AfterCompletionCallback", { clear = true }),
--- 	callback = require("user.utils.remove_brackets_after_completion").run,
--- })
-
 vim.keymap.set("n", "<leader>rf", require("user.utils.run_code").run, { desc = "Run code" })
 vim.keymap.set("n", "<leader>hls", require("user.utils.convert-color").convert_color, { desc = "Convert color" })
 
@@ -250,35 +203,3 @@ require("user.utils.react-context").setup()
 -- vim.keymap.set("n", "<leader>tn", function()
 -- 	require("neotest").run.run()
 -- end)
-
-vim.api.nvim_create_user_command("Undotree", function(opts)
-	local args = opts.fargs
-	local cmd = args[1]
-
-	local cb = require("undotree")[cmd]
-
-	if cmd == "setup" or cb == nil then
-		vim.notify("Invalid subcommand: " .. (cmd or ""), vim.log.levels.ERROR)
-	else
-		cb()
-	end
-end, {
-	nargs = 1,
-	complete = function(arg_lead)
-		return vim.tbl_filter(function(cmd)
-			return vim.startswith(cmd, arg_lead)
-		end, { "toggle", "open", "close" })
-	end,
-	desc = "Undotree command with subcommands: toggle, open, close",
-})
-
-vim.api.nvim_create_user_command("RefreshBrowser", function()
-	local command = 'i3-msg "workspace number 9"; xdotool key ctrl+r; i3-msg "workspace number 9"'
-	vim.fn.jobstart(command, {
-		detach = true,
-		stdout_buffered = true,
-		stderr_buffered = true,
-	})
-end, {
-	desc = "Edit downloads directory",
-})

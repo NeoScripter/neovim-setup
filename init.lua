@@ -1,5 +1,6 @@
 require("user/options")
 require("user/keymaps")
+require("user/commands")
 require("user/misc")
 require("user/setup")
 require("user/lazy")
