@@ -90,7 +90,7 @@ local function find_css_file(search_term, class)
 		end
 	end
 
-	files = vim.fn.split(vim.fn.system([[fd -t f -i -e scss -e css -E node_modules -E dist -E build]]), "\n")
+	files = vim.fn.split(vim.fn.system([[fd -t f -i -e scss -e css -E node_modules -E dist -E build -E vendor -E .git]]), "\n")
 
 	table.sort(files, function(a, b)
 		return string.len(a) < string.len(b)

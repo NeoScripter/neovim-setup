@@ -117,7 +117,7 @@ vim.api.nvim_create_user_command("ChangeCSSFileSearchTerm", function()
 end, {})
 
 vim.api.nvim_create_user_command("Test", function()
-	local files = vim.fn.split(vim.fn.system([[fd -t f -i -e scss -e css -E node_modules -E dist -E build]]), "\n")
+	local files = vim.fn.split(vim.fn.system([[fd -t f -i -e scss -e css -E node_modules -E dist -E build -E vendor -E .git]]), "\n")
 
 	for _, value in pairs(files) do
 		print(value)

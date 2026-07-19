@@ -1,14 +1,5 @@
 local M = {}
 
-local excluded_dirs = {
-	"node_modules",
-	".git",
-	"vendor",
-	"dist",
-	"build",
-	".next",
-}
-
 function M.run()
 	vim.ui.input({
 		prompt = "Enter the filename: ",
@@ -23,22 +14,8 @@ function M.run()
 		local str = require("user.utils.str.utils")
 		local root = utils.get_project_root()
 
-		local matched_files = vim.fn.globpath(root, "**/*" .. filename .. "*", false, true)
-
-		matched_files = vim.tbl_filter(function(file)
-			if vim.fn.isdirectory(file) == 1 then
-				return false
-			end
-
-			for _, excluded in ipairs(excluded_dirs) do
-				local escaped = vim.pesc(excluded)
-				if file:match("[/\\]" .. escaped .. "[/\\]") or file:match("^" .. escaped .. "[/\\]") then
-					return false
-				end
-			end
-
-			return true
-		end, matched_files)
+		local cmd = string.format([[fd '%s' -t f -i -E node_modules -E dist -E build -E vendor -E .git]], filename)
+		local matched_files = vim.fn.split(vim.fn.system(cmd), "\n")
 
 		if next(matched_files) == nil then
 			echo_error("Could not find any files with this name")

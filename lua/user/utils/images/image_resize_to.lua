@@ -17,7 +17,7 @@ function M.run(cb)
 
 		local utils = require("user.utils.images.utils")
 		local root = utils.get_project_root()
-		local cmd = string.format([[fd '%s' -t f -i -E node_modules -E dist -E build]], filename)
+		local cmd = string.format([[fd '%s' -t f -i -E node_modules -E dist -E build -E vendor -E .git]], filename)
 		local matched_files = vim.fn.split(vim.fn.system(cmd), "\n")
 
 		if next(matched_files) == nil then

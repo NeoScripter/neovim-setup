@@ -10,7 +10,7 @@ function M.run(cb)
 	local downloads = vim.fn.readdir(downloads_dir)
 	local utils = require("user.utils.images.utils")
 	local root = utils.get_project_root()
-	local assets_dir = vim.fn.split(vim.fn.system([[fd assets -t d -i -E node_modules -E dist -E build]]), "\n")
+	local assets_dir = vim.fn.split(vim.fn.system([[fd assets -t d -i -E node_modules -E dist -E build -E vendor -E .git]]), "\n")
 
 	if next(assets_dir) == nil then
 		assets_dir = { root }
