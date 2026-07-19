@@ -1,5 +1,23 @@
 local M = {}
 
+local last_pos = nil
+
+local function save_pos()
+	last_pos = {
+		buffer = vim.api.nvim_get_current_buf(),
+		cursor = vim.api.nvim_win_get_cursor(0),
+	}
+end
+
+local function restore_pos()
+	if last_pos then
+		if vim.api.nvim_get_current_buf() ~= last_pos.buffer then
+			vim.api.nvim_set_current_buf(last_pos.buffer)
+			vim.api.nvim_win_set_cursor(0, last_pos.cursor)
+		end
+	end
+end
+
 local function open_css_file(file)
 	vim.cmd("e " .. file)
 end
@@ -37,25 +55,30 @@ local function insert_class_block(bufnr, insert_at, classname)
 	vim.api.nvim_buf_set_lines(bufnr, insert_at, insert_at, false, insert_lines)
 end
 
-local function find_css_file()
+local function find_css_file(search_term, class)
 	local curpath = vim.api.nvim_buf_get_name(0)
 
 	if curpath == "" then
 		echo_error("Path to the current file not found")
-		return false
+		return
 	end
 
 	local current_dir = vim.fn.fnamemodify(curpath, ":h")
 	local file_ext = vim.fn.fnamemodify(curpath, ":e")
 
 	if file_ext == "css" or file_ext == "scss" then
-		vim.api.nvim_input("<C-^>")
-		return false
+		restore_pos()
+		return
+	end
+
+	if class == nil then
+		echo_error("CSS class not found")
+		return
 	end
 
 	if current_dir == nil or current_dir == "" then
 		echo_error("Could not find current directory")
-		return false
+		return
 	end
 
 	local files = vim.fn.globpath(current_dir, "**/*.{,s}css", true, true)
@@ -63,13 +86,11 @@ local function find_css_file()
 
 	for _, file in ipairs(files) do
 		if vim.fn.filereadable(file) == 1 and filenames_match(file, current_file) then
-			open_css_file(file)
-			return true
+			return file
 		end
 	end
 
-	local root = vim.fs.root(0, { { ".git", "package.json", "composer.json", "vite.config", "node_modules" }, ".git" })
-	files = vim.fn.globpath(root, "**/*.{,s}css", true, true)
+	files = vim.fn.split(vim.fn.system([[fd -t f -i -e scss -e css -E node_modules -E dist -E build]]), "\n")
 
 	table.sort(files, function(a, b)
 		return string.len(a) < string.len(b)
@@ -77,27 +98,24 @@ local function find_css_file()
 
 	if next(files) == nil then
 		echo_error("No CSS or SCSS files were found in the project")
-		return false
+		return
 	end
 
 	for _, file in ipairs(files) do
 		local filename = vim.fn.fnamemodify(file, ":t")
 
-		if (filename:match("style") or filename:match("app")) and vim.fn.filereadable(file) == 1 then
-			open_css_file(file)
-			return true
+		if filename:match(search_term) and vim.fn.filereadable(file) == 1 then
+			return file
 		end
 	end
 
 	for _, file in ipairs(files) do
 		if vim.fn.filereadable(file) == 1 then
-			open_css_file(file)
-			return true
+			return file
 		end
 	end
 
 	echo_error("Could not read any of the CSS or SCSS files")
-	return false
 end
 
 local function get_class_under_cursor()
@@ -191,23 +209,27 @@ local function find_class_parent()
 	return nil
 end
 
-function M.run()
+function M.run(search_term)
+    local cursor_pos = vim.api.nvim_win_get_cursor(0)
+
 	local class = get_classname()
+
+	local parent = find_class_parent()
+
+	local file = find_css_file(search_term, class)
+
+	if file == nil then
+		return nil
+	end
 
 	if class == nil then
 		echo_error("No CSS class found")
 		return
 	end
 
-	local parent = find_class_parent()
-
-	if find_css_file() == false then
-		return nil
-	end
-
-	if class == nil then
-		return nil
-	end
+    vim.api.nvim_win_set_cursor(0, cursor_pos)
+	save_pos()
+	open_css_file(file)
 
 	if vim.fn.search(class, "nwc") <= 0 then
 		if parent ~= nil then

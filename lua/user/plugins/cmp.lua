@@ -133,7 +133,7 @@ return {
 				dadbod = { module = "vim_dadbod_completion.blink" },
 				lsp = {
 					fallbacks = { "buffer" }, -- Add buffer as fallback
-					score_offset = 50, -- Give LSP higher priority
+					score_offset = 150, -- Give LSP higher priority
 					transform_items = function(ctx, items)
 						for _, item in ipairs(items) do
 							if item.insertTextFormat ~= 2 and item.textEdit then

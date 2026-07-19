@@ -10,13 +10,13 @@ function M.run(cb)
 	local downloads = vim.fn.readdir(downloads_dir)
 	local utils = require("user.utils.images.utils")
 	local root = utils.get_project_root()
-	local assets_dir = vim.fn.globpath(root, "**/assets", false, true, true)
+	local assets_dir = vim.fn.split(vim.fn.system([[fd assets -t d -i -E node_modules -E dist -E build]]), "\n")
 
 	if next(assets_dir) == nil then
 		assets_dir = { root }
 	end
 
-	assets_dir = assets_dir[1]
+	local dest_dir = assets_dir[1]
 
 	local image_files = vim.tbl_filter(function(file)
 		local ext = file:match("%.([%w]+)$")
@@ -35,14 +35,12 @@ function M.run(cb)
 		end
 
 		vim.ui.input({
-			prompt = "Subfolder (optional, relative to " .. assets_dir:gsub(root, "") .. "): ",
+			prompt = "Subfolder (optional, relative to " .. dest_dir:gsub(root, "") .. "): ",
 			default = "",
 		}, function(subfolder)
 			if subfolder == nil then
 				return cb(nil)
 			end
-
-			local dest_dir = assets_dir
 
 			if subfolder ~= "" then
 				dest_dir = dest_dir .. "/" .. subfolder

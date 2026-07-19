@@ -3,6 +3,7 @@ local M = {}
 -- stylua: ignore start
 local options = {
     { key = "scope", value = "📥 Convert current class into scope" },
+    { key = "search_term", value = "🔗 Change CSS parent file" },
 }
 --
 -- stylua: ignore end
@@ -26,6 +27,8 @@ function M.run()
 
 		if method.key == "scope" then
 			require("user.utils.css.css_convert_to_scope").run()
+		elseif method.key == "search_term" then
+			vim.cmd("ChangeCSSFileSearchTerm")
 		end
 	end)
 end

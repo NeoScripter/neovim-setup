@@ -84,7 +84,7 @@ local function toggle_update_assets_autocmd()
 		})
 	end
 
-    cb()
+	cb()
 
 	vim.api.nvim_create_autocmd("BufWritePost", {
 		group = group_id,
@@ -98,3 +98,28 @@ end
 vim.api.nvim_create_user_command("ToggleAutoBuild", toggle_update_assets_autocmd, {
 	desc = "Toggle Auto Build and Update Frontend Assets When Any File Changes",
 })
+
+local search_term = "style"
+
+vim.keymap.set("n", "<leader>w", function()
+	require("user.utils.css.css_helper").run(search_term)
+end, { desc = "Open css file" })
+
+vim.api.nvim_create_user_command("ChangeCSSFileSearchTerm", function()
+	local input = vim.fn.input("Enter CSS file name: ")
+
+	if input == nil then
+		echo_error("No search term supplied")
+		return
+	end
+
+	search_term = input
+end, {})
+
+vim.api.nvim_create_user_command("Test", function()
+	local files = vim.fn.split(vim.fn.system([[fd -t f -i -e scss -e css -E node_modules -E dist -E build]]), "\n")
+
+	for _, value in pairs(files) do
+		print(value)
+	end
+end, {})

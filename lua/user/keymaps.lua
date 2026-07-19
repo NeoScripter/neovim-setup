@@ -160,8 +160,6 @@ vim.keymap.set("n", "<leader>clt", function()
 	require("user.utils.generate-test").generate_test()
 end, { desc = "Generate test from Input/Output block" })
 
-vim.keymap.set("n", "<leader>w", require("user.utils.css.css_helper").run, { desc = "Open css file" })
-
 vim.keymap.set(
 	"n",
 	"<leader>ths",
