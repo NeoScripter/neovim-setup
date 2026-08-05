@@ -73,7 +73,7 @@ local function toggle_update_assets_autocmd()
 	group_id = vim.api.nvim_create_augroup("hot-module-refresh", { clear = true })
 
 	local cb = function()
-		local command = "pnpm run build > /dev/null 2>&1; ~/.config/i3/ws9_f5.sh;"
+		local command = "npm run build > /dev/null 2>&1; ~/.config/i3/i3-utils/nvim/ws9_f5.sh;"
 		vim.fn.jobstart(command, {
 			stdout_buffered = true,
 			on_stderr = function(_, data)
@@ -116,10 +116,40 @@ vim.api.nvim_create_user_command("ChangeCSSFileSearchTerm", function()
 	search_term = input
 end, {})
 
-vim.api.nvim_create_user_command("Test", function()
-	local files = vim.fn.split(vim.fn.system([[fd -t f -i -e scss -e css -E node_modules -E dist -E build -E vendor -E .git]]), "\n")
+-- Open help in vertical split
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "help",
+	command = "wincmd L",
+})
 
-	for _, value in pairs(files) do
-		print(value)
-	end
-end, {})
+-- No auto continue comments on new line
+vim.api.nvim_create_autocmd("FileType", {
+	group = vim.api.nvim_create_augroup("no_auto_comment", {}),
+	callback = function()
+		vim.opt_local.formatoptions:remove({ "c", "r", "o" })
+	end,
+})
+
+-- Syntax highlighting for dotenv files
+vim.api.nvim_create_autocmd("BufRead", {
+	group = vim.api.nvim_create_augroup("dotenv_ft", { clear = true }),
+	pattern = { ".env", ".env.*" },
+	callback = function()
+		vim.bo.filetype = "dosini"
+	end,
+})
+
+
+-- vim.api.nvim_create_user_command("Test", function()
+-- 	local output = get_visual_selection_text()
+
+-- 	print(output)
+-- end, {})
+
+-- vim.keymap.set("v", "<leader>m", function()
+-- 	local output = get_visual_selection_text()
+
+-- 	for _, value in pairs(output) do
+-- 		print(value)
+-- 	end
+-- end)
