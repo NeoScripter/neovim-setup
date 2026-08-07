@@ -50,7 +50,7 @@ vim.keymap.set("i", ";;", "<Esc>A;<Esc>")
 vim.keymap.set("i", ",,", "<Esc>A,<Esc>")
 
 -- Open the current file in the default program (on Mac this should just be just `open`).
-vim.keymap.set("n", "<leader>x", ':!start "" %<cr><cr>')
+-- vim.keymap.set("n", "<leader>x", ':!start "" %<cr><cr>', { desc = "Execute the selected lua code" })
 
 -- Disable annoying command line thing.
 vim.keymap.set("n", "q:", ":q<CR>")
@@ -148,7 +148,7 @@ vim.keymap.set("n", "<leader>=", "<C-w>=", { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 vim.keymap.set({ "n", "v" }, "<C-b>", "<C-v>")
 
--- vim.keymap.set('n', '<leader>tn', function() require('neotest').run.run() end)
+vim.keymap.set('n', '<leader>tr', function() require('neotest').run.run() end)
 
 -- vim.keymap.set('n', '<leader>tf', function() require('neotest').run.run(vim.fn.expand('%')) end)
 
@@ -156,9 +156,9 @@ vim.keymap.set("t", "<C-k>", "<Up>", { noremap = true, silent = true })
 
 vim.keymap.set("n", "<C-p>", "lf-<Esc>i<CR><Esc>", { noremap = true, silent = true })
 
-vim.keymap.set("n", "<leader>clt", function()
-	require("user.utils.generate-test").generate_test()
-end, { desc = "Generate test from Input/Output block" })
+-- vim.keymap.set("n", "<leader>clt", function()
+-- 	require("user.utils.generate-test").generate_test()
+-- end, { desc = "Generate test from Input/Output block" })
 
 vim.keymap.set(
 	"n",
@@ -190,8 +190,8 @@ vim.keymap.set("n", "<space><space>x", function()
 	vim.notify("Nvim configuration reloaded!", vim.log.levels.INFO)
 end, { desc = "Reload Neovim config" })
 
-vim.keymap.set("n", "<space>x", ":.lua<CR>")
-vim.keymap.set("v", "<space>x", ":lua<CR>")
+vim.keymap.set("n", "<space>x", ":.lua<CR>", { desc = "Execute currently selected lua code" })
+vim.keymap.set("v", "<space>x", ":lua<CR>", { desc = "Execute currently selected lua code" })
 
 vim.keymap.set("n", "<leader>rf", require("user.utils.run_code").run, { desc = "Run code" })
 vim.keymap.set("n", "<leader>hls", require("user.utils.convert-color").convert_color, { desc = "Convert color" })
@@ -201,3 +201,17 @@ require("user.utils.react-context").setup()
 -- vim.keymap.set("n", "<leader>tn", function()
 -- 	require("neotest").run.run()
 -- end)
+--
+
+vim.keymap.set("n", "<leader>qt", function()
+	require("quicker").toggle()
+end, {
+	desc = "Toggle quickfix",
+})
+
+vim.keymap.set("n", "<leader>qe", function()
+	require("quicker").toggle_expand({ loclist = true })
+end, {
+	desc = "Expand quickfix lines",
+})
+

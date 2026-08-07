@@ -139,7 +139,6 @@ vim.api.nvim_create_autocmd("BufRead", {
 	end,
 })
 
-
 -- vim.api.nvim_create_user_command("Test", function()
 -- 	local output = get_visual_selection_text()
 

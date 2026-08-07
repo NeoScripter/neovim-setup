@@ -1,3 +1,3 @@
 -- Automatically add closing brackets, quotes, etc.
 
-return { 'windwp/nvim-autopairs', config = true }
+return { "windwp/nvim-autopairs", enabled = true, config = true }

@@ -1,6 +1,7 @@
 return {
 	"saghen/blink.cmp",
 	event = "VimEnter",
+	enabled = true,
 	version = "1.*",
 	dependencies = {
 		-- Snippet Engine
@@ -140,9 +141,10 @@ return {
 								local newText = item.textEdit.newText or ""
 								-- Keep textEdit if newText starts with dot (method/property completion)
 								-- Stripping it would cause blink to insert at cursor, doubling the dot
-								if not newText:match("^%.") then
-									item.textEdit = nil
-								end
+								item.textEdit = nil
+								-- if not newText:match("^%.") then
+								-- 	item.textEdit = nil
+								-- end
 							end
 						end
 						return items
