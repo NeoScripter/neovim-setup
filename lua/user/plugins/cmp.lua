@@ -142,9 +142,9 @@ return {
 								-- Keep textEdit if newText starts with dot (method/property completion)
 								-- Stripping it would cause blink to insert at cursor, doubling the dot
 								item.textEdit = nil
-								-- if not newText:match("^%.") then
-								-- 	item.textEdit = nil
-								-- end
+								if not newText:match("^%.") then
+									item.textEdit = nil
+								end
 							end
 						end
 						return items

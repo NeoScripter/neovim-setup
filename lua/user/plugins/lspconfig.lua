@@ -2,6 +2,7 @@
 return {
 	-- Main LSP Configuration
 	"neovim/nvim-lspconfig",
+	enabled = true,
 	dependencies = {
 		-- Automatically install LSPs and related tools to stdpath for Neovim
 		-- Mason must be loaded before its dependents so we need to set it up here.
@@ -220,8 +221,12 @@ return {
 			sqls = {},
 			stylua = {},
 			tailwindcss = {},
-			ts_ls = {},
-			vue_ls = {},
+			tsgo = {
+				filetypes = { "typescriptreact", "typescript", "javascriptreact", "javascript" },
+			},
+			vtsls = {
+				filetypes = { "vue" },
+			},
 
 			-- clangd = {},
 			-- gopls = {},
@@ -276,6 +281,7 @@ return {
 		require("mason-lspconfig").setup({
 			ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
 			automatic_installation = false,
+            -- automatic_enable = false,
 			handlers = {
 				function(server_name)
 					local server = servers[server_name] or {}
@@ -285,28 +291,6 @@ return {
 					server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
 					require("lspconfig")[server_name].setup(server)
 				end,
-			},
-		})
-
-		require("lspconfig").emmet_ls.setup({
-			capabilities = capabilities,
-			filetypes = {
-				"html",
-				"php",
-				"css",
-				"eruby",
-				"htmlangular",
-				"htmldjango",
-				"javascriptreact",
-				"less",
-				"pug",
-				"sass",
-				"scss",
-				"svelte",
-				"templ",
-				"typescriptreact",
-				"vue",
-				"astro",
 			},
 		})
 	end,

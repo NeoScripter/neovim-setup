@@ -9,7 +9,7 @@ return {
 		"nvim-telescope/telescope-ui-select.nvim",
 		{
 			"nvim-telescope/telescope-fzf-native.nvim",
-			build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
+			build = "make",
 		},
 	},
 	keys = {
@@ -24,7 +24,7 @@ return {
 		{
 			"<leader>sk",
 			function()
-				require("telescope.builtin").find_files({
+				require("telescope.builtin").keymaps({
 					prompt_title = "Search Keymaps",
 				})
 			end,
@@ -140,8 +140,8 @@ return {
 						["<C-Down>"] = actions.cycle_history_next,
 						["<C-Up>"] = actions.cycle_history_prev,
 						["<C-y>"] = actions.select_default,
-                        ["<C-n>"] = actions.move_selection_previous,
-                        ["<C-p>"] = actions.move_selection_next,
+						["<C-n>"] = actions.move_selection_previous,
+						["<C-p>"] = actions.move_selection_next,
 					},
 					n = {
 						["<C-y>"] = actions.select_default,
@@ -150,6 +150,11 @@ return {
 				file_ignore_patterns = {
 					"node_modules",
 					".git/",
+					"%.woff2$",
+					"%.woff$",
+					"%.webp$",
+					"%.png$",
+					"%.svg$",
 					".docs/",
 					".dist/",
 					".target/",
@@ -195,7 +200,8 @@ return {
 			},
 		})
 
-		require("telescope").load_extension("fzf")
 		require("telescope").load_extension("ui-select")
+		require("telescope").load_extension("fzf")
+		require("telescope").load_extension("live_grep_args")
 	end,
 }
