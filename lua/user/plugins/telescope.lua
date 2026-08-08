@@ -119,12 +119,35 @@ return {
 	},
 	config = function()
 		local actions = require("telescope.actions")
+		local previewers = require("telescope.previewers")
+		local putils = require("telescope.previewers.utils")
+
+		local default_buffer_previewer_maker = previewers.buffer_previewer_maker
+		local skip_preview_exts = {
+			svg = true,
+			webp = true,
+			png = true,
+			jpg = true,
+			jpeg = true,
+			woff = true,
+			woff2 = true,
+		}
+
+		local function buffer_previewer_maker(filepath, bufnr, opts)
+			local ext = filepath:match("^.+%.([^./]+)$")
+			if ext and skip_preview_exts[ext:lower()] then
+				putils.set_preview_message(bufnr, opts.winid, "Preview disabled for ." .. ext .. " files")
+				return
+			end
+			default_buffer_previewer_maker(filepath, bufnr, opts)
+		end
 
 		require("telescope").setup({
 			defaults = {
 				path_display = { truncate = 1 },
 				prompt_prefix = "   ",
 				selection_caret = "  ",
+				buffer_previewer_maker = buffer_previewer_maker,
 				layout_config = {
 					prompt_position = "bottom",
 				},
@@ -150,11 +173,11 @@ return {
 				file_ignore_patterns = {
 					"node_modules",
 					".git/",
-					"%.woff2$",
-					"%.woff$",
-					"%.webp$",
-					"%.png$",
-					"%.svg$",
+					-- "%.woff2$",
+					-- "%.woff$",
+					-- "%.webp$",
+					-- "%.png$",
+					-- "%.svg$",
 					".docs/",
 					".dist/",
 					".target/",
