@@ -139,16 +139,6 @@ vim.api.nvim_create_autocmd("BufRead", {
 	end,
 })
 
--- vim.api.nvim_create_user_command("Test", function()
--- 	local output = get_visual_selection_text()
-
--- 	print(output)
--- end, {})
-
--- vim.keymap.set("v", "<leader>m", function()
--- 	local output = get_visual_selection_text()
-
--- 	for _, value in pairs(output) do
--- 		print(value)
--- 	end
+-- vim.keymap.set("n", "<leader>m", function()
+-- 	require("user.utils.react.react_convert_imports_to_aliases").run()
 -- end)

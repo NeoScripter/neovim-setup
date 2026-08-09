@@ -10,6 +10,7 @@ return {
 					async = true,
 					lsp_format = "fallback",
 				})
+				require("user.utils.react.react_convert_imports_to_aliases").run()
 			end,
 			mode = "",
 			desc = "[F]ormat buffer",
